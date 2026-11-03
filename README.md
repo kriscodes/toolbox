@@ -82,6 +82,8 @@ Both services use the **kristiansalmeron.com** workspace and the same repository
 
 The existing static site is `kristian-toolbox` (`srv-dbklj4u7bikc73doopvg`), serving `toolbox.kristiansalmeron.com`. Its two browser pages are emitted as actual HTML files, so a catch-all rewrite is unnecessary.
 
+The deployed API is `toolbox-prompt-api` (`srv-dbkob5tg1s2s73db1ms0`) at `https://toolbox-prompt-api.onrender.com`. Its health check is configured as `/api/health`. The static site's public API URL is already connected; private keys must be entered in the [API environment settings](https://dashboard.render.com/web/srv-dbkob5tg1s2s73db1ms0/env) before generation can run.
+
 On the static site, set `VITE_PROMPT_API_URL` to the API's HTTPS origin, with no path suffix, then rebuild. On the API service, configure the two server secrets and set `ALLOWED_ORIGINS=https://toolbox.kristiansalmeron.com`. Add another origin only when that exact browser address should be allowed. Leave Render's supplied `PORT` in place; the server binds to `0.0.0.0`.
 
 The API can use a free web service because it does not persist data. A free instance may sleep when idle, making its next request slower. `/api/health` checks the process and reports whether credentials are configured; it does not call OpenAI or verify provider billing/model access. After both services deploy, check the page, refresh its nested URL, and make an authorized generation with each model. Deployment should not be considered complete merely because a deploy request was accepted.
