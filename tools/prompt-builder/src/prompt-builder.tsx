@@ -124,6 +124,9 @@ export function PromptBuilder(): ReactNode {
   const dirty = isDraftDirty(library);
   const selectedModel = MODELS.find(function chosenModel(model) { return model.id === draft.modelId; })!;
   const storageBlocked = recovery !== null || externalChange;
+  const savingPaused = Boolean(storageError) || storageBlocked;
+  // Mutation feedback must not imply that an in-memory change was persisted successfully.
+  const visibleNotice = savingPaused && /^(?:Saved to |Copy saved to |Group context saved\.|Prompt deleted\.|Group deleted\.|Backup imported as new copies\.|A fresh library is ready\.)/u.test(notice) ? '' : notice;
 
   /** Keep file-import completion pointed at the newest editor state after its asynchronous read. */
   function rememberCurrentLibrary(): void { libraryRef.current = library; }
@@ -368,7 +371,7 @@ export function PromptBuilder(): ReactNode {
         <button type="button" className="pb-new" onClick={newPrompt} disabled={busy || storageBlocked}><Icon name="plus" />New prompt</button>
         <section><div className="pb-group-heading"><h2>Groups</h2><button className="pb-icon-button" type="button" onClick={addGroup} aria-label="Add group" disabled={busy || storageBlocked}><Icon name="plus" /></button></div><nav className="pb-group-nav" aria-label="Prompt groups">{library.groups.map(renderGroup)}</nav></section>
         <section className={`pb-recent ${showSaved ? 'pb-recent-open' : ''}`}><div className="pb-group-heading"><h2>Saved prompts <span className="pb-count">{savedPrompts.length}</span></h2><button className="pb-mobile-toggle pb-text-button" type="button" onClick={toggleSaved} aria-expanded={showSaved}>{showSaved ? 'Hide' : 'Show'}</button></div><div className="pb-recent-list">{savedPrompts.length ? savedPrompts.map(renderSaved) : <p className="pb-empty">Saved prompts will appear here.</p>}</div></section>
-        <div className="pb-library-footer"><p>Saved in this browser</p><div className="pb-backup-actions"><button type="button" className="pb-text-button" onClick={exportBackup}>Export</button><span>·</span><button type="button" className="pb-text-button" onClick={chooseBackup} disabled={storageBlocked || busy}>Import</button></div><input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={importBackup} aria-label="Import prompt backup" /></div>
+        <div className="pb-library-footer"><p>{savingPaused ? 'Saving paused' : 'Saved in this browser'}</p><div className="pb-backup-actions"><button type="button" className="pb-text-button" onClick={exportBackup}>Export</button><span>·</span><button type="button" className="pb-text-button" onClick={chooseBackup} disabled={storageBlocked || busy}>Import</button></div><input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={importBackup} aria-label="Import prompt backup" /></div>
       </aside>
       <main className="pb-main">
         <div className="pb-heading"><div><p className="pb-eyebrow">{group.name}</p><h2>{draft.savedId ? 'Make it your own.' : 'Start with an idea.'}</h2></div><button className="pb-text-button" type="button" onClick={editCurrentGroup} disabled={busy || storageBlocked}>Edit group</button></div>
@@ -385,7 +388,7 @@ export function PromptBuilder(): ReactNode {
             {busy ? <button className="pb-secondary pb-wide pb-cancel" type="button" onClick={cancelGeneration}>Cancel generation</button> : <p className="pb-generation-note">A prompt you can take to ChatGPT.</p>}
           </form>
           <section className="pb-result" aria-label="Your editable prompt" aria-busy={busy}>
-            <div className="pb-output"><div className="pb-output-header"><label htmlFor="pb-prompt">Your prompt</label><span>{busy ? 'Building…' : draft.savedId && !dirty ? 'Saved' : draft.prompt ? 'Editable draft' : 'Ready when you are'}</span></div><textarea ref={output} id="pb-prompt" className="pb-draft" value={draft.prompt} onChange={changePrompt} maxLength={MAX_PROMPT_LENGTH} disabled={busy} readOnly={storageBlocked} placeholder="Your prompt will take shape here. You can also write or paste one of your own." spellCheck={false} />
+            <div className="pb-output"><div className="pb-output-header"><label htmlFor="pb-prompt">Your prompt</label><span>{busy ? 'Building…' : draft.prompt && savingPaused ? 'Not saved to browser' : draft.savedId && !dirty ? 'Saved' : draft.prompt ? 'Editable draft' : 'Ready when you are'}</span></div><textarea ref={output} id="pb-prompt" className="pb-draft" value={draft.prompt} onChange={changePrompt} maxLength={MAX_PROMPT_LENGTH} disabled={busy} readOnly={storageBlocked} placeholder="Your prompt will take shape here. You can also write or paste one of your own." spellCheck={false} />
               <div className="pb-save-name"><label htmlFor="pb-prompt-name">Prompt name</label><input id="pb-prompt-name" value={draft.name} onChange={changePromptName} maxLength={MAX_NAME_LENGTH} placeholder="e.g. Plan the first version" disabled={busy || storageBlocked} /></div>
               <div className="pb-output-footer"><button type="button" className="pb-save" onClick={saveCurrentPrompt} disabled={busy || !draft.prompt.trim() || !draft.name.trim() || storageBlocked}><Icon name="save" />{draft.savedId ? 'Save changes' : 'Save to group'}</button><button type="button" className="pb-copy" onClick={copyPrompt} disabled={!draft.prompt.trim() || busy}><Icon name="copy" />Copy prompt</button></div>
             </div>
@@ -393,7 +396,7 @@ export function PromptBuilder(): ReactNode {
             <p className="pb-private-note">Only your idea and included context are sent when you build.</p>
           </section>
         </div>
-        <div className="pb-feedback" aria-live="polite" role="status">{notice}</div>{error && <p className="pb-error" role="alert">{error}</p>}
+        <div className="pb-feedback" aria-live="polite" role="status">{visibleNotice}</div>{error && <p className="pb-error" role="alert">{error}</p>}
       </main>
     </div>
     {editingGroup && <GroupEditor key={editingGroup.id} group={editingGroup} disabled={storageBlocked} isNew={!library.groups.some(function existingGroup(item) { return item.id === editingGroup.id; })} onSave={commitGroup} onClose={closeGroupEditor} onDelete={removeEditingGroup} />}
