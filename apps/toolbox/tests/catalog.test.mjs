@@ -16,7 +16,9 @@ test('saved pins recover from malformed data but respect intentionally empty pin
   assert.deepEqual([...parsePinnedProjects('["family","unknown",42,"family"]')], ['family']);
 });
 
-test('only real HTTPS destinations can become launch links', () => {
+test('only known internal tools or real HTTPS destinations can become launch links', () => {
   for (const value of [undefined, '', '/not-published', 'javascript:alert(1)', 'http://example.com', 'https://user:pass@example.com']) assert.equal(getSafeProjectUrl(value), null);
   assert.equal(getSafeProjectUrl('https://example.com/tool'), 'https://example.com/tool');
+  assert.equal(getSafeProjectUrl('/tools/prompt-builder/'), '/tools/prompt-builder/');
+  assert.equal(getSafeProjectUrl('//evil.example/tools/prompt-builder/'), null);
 });

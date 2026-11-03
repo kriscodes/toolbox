@@ -3,9 +3,12 @@ import { DEFAULT_PINNED_IDS, filterProjects, getSafeProjectUrl, parsePinnedProje
 import './styles.css';
 
 const icons = { ArrowUpRight, Box, FolderOpen, House, LayoutGrid, MapPin, MessageSquare, Pin, Search, X };
+/** Produces an accessible placeholder that Lucide replaces with an SVG icon. */
 const icon = (name: string) => `<i data-lucide="${name}" aria-hidden="true"></i>`;
+/** Escapes text before it is interpolated into the dashboard's HTML templates. */
 const escape = (value: string) => value.replace(/[&<>"']/gu, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
 
+/** Loads the user's pins without preventing the dashboard from opening when storage is unavailable. */
 function readPins(): Set<string> {
   try { return parsePinnedProjects(localStorage.getItem(PINNED_STORAGE_KEY)); }
   catch { return new Set(DEFAULT_PINNED_IDS); }
@@ -27,13 +30,17 @@ const navigation: { filter: ProjectFilter; label: string; icon: string; group?: 
   { filter: 'Home', label: 'Home', icon: 'house' },
 ];
 
+/** Renders published tools as links and planned projects as detail-dialog buttons. */
 function projectCard(project: Project): string {
   const name = escape(project.name);
+  const url = getSafeProjectUrl(project.url);
+  const tag = url ? 'a' : 'button';
+  const action = url ? `href="${escape(url)}" aria-label="Open ${name}"` : `type="button" data-open="${project.id}" aria-label="View ${name}" aria-haspopup="dialog"`;
   return `<article class="project ${project.featured ? 'project-featured' : ''}" data-project="${project.id}">
-    <button type="button" class="project-open" data-open="${project.id}" aria-label="View ${name}" aria-haspopup="dialog">
+    <${tag} class="project-open" ${action}>
       <span class="project-art"><img src="${project.image}" alt="${escape(project.imageAlt)}" width="960" height="640" decoding="async" ${project.featured ? 'fetchpriority="high"' : ''} /></span>
       <span class="project-meta"><span>${project.featured ? `<span class="project-kicker">${escape(project.group)}</span>` : ''}<span class="project-title" role="heading" aria-level="2">${name}</span><span class="project-status">${project.status}</span></span><span class="project-arrow">${icon('arrow-up-right')}</span></span>
-    </button>
+    </${tag}>
     <button type="button" class="pin-button" data-pin="${project.id}" aria-label="Pin ${name}" aria-pressed="${pinned.has(project.id)}">${icon('pin')}</button>
   </article>`;
 }
@@ -67,6 +74,7 @@ const resultsStatus = app.querySelector<HTMLElement>('#results-status')!;
 const pinStatus = app.querySelector<HTMLElement>('#pin-status')!;
 const dialog = app.querySelector<HTMLDialogElement>('.project-dialog')!;
 
+/** Applies filters and pin states, announces results, and moves focus out of hidden cards. */
 function updateProjects(announce = true): void {
   const focusedElement = document.activeElement;
   const visible = new Set(filterProjects(PROJECTS, activeFilter, query, pinned).map((project) => project.id));
@@ -87,10 +95,12 @@ function updateProjects(announce = true): void {
   }
 }
 
+/** Toggles a known project pin and reports when browser persistence is unavailable. */
 function togglePin(id: string): void {
   const project = PROJECTS.find((item) => item.id === id);
   if (!project) return;
-  pinned.has(id) ? pinned.delete(id) : pinned.add(id);
+  if (pinned.has(id)) pinned.delete(id);
+  else pinned.add(id);
   let saved = true;
   try { localStorage.setItem(PINNED_STORAGE_KEY, JSON.stringify([...pinned])); }
   catch { saved = false; }
@@ -98,6 +108,7 @@ function togglePin(id: string): void {
   pinStatus.textContent = `${project.name} ${pinned.has(id) ? 'pinned' : 'unpinned'}.${saved ? '' : ' Saved for this visit only.'}`;
 }
 
+/** Populates the project dialog and remembers its opener for keyboard focus restoration. */
 function openProject(project: Project, opener: HTMLElement): void {
   dialogOpener = opener;
   dialog.querySelector<HTMLHeadingElement>('#detail-title')!.textContent = project.name;
@@ -114,10 +125,14 @@ function openProject(project: Project, opener: HTMLElement): void {
   dialog.showModal();
 }
 
+// Searching updates cards in place, so form submission must not reload the page.
 app.querySelector<HTMLFormElement>('.search')!.addEventListener('submit', (event) => event.preventDefault());
+// Search text immediately filters the current project group.
 searchInput.addEventListener('input', () => { query = searchInput.value; updateProjects(); });
+// Clearing search restores all matching cards and keeps the keyboard in the search field.
 clearSearch.addEventListener('click', () => { query = ''; searchInput.value = ''; updateProjects(); searchInput.focus(); });
 
+// Delegate dashboard actions so one listener handles every project and navigation button.
 app.addEventListener('click', (event) => {
   if (!(event.target instanceof Element)) return;
   const filter = event.target.closest<HTMLButtonElement>('[data-filter]');
@@ -134,23 +149,28 @@ app.addEventListener('click', (event) => {
   }
 });
 
+// Close buttons use the native dialog lifecycle so focus restoration remains centralized.
 dialog.querySelector<HTMLButtonElement>('.close-dialog')!.addEventListener('click', () => dialog.close());
+// Dismiss a modal only when the click is outside its visible content bounds.
 dialog.addEventListener('click', (event) => {
   if (event.target !== dialog) return;
   const bounds = dialog.getBoundingClientRect();
   if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close();
 });
+// Restore focus to the original card, or search if that card is no longer visible.
 dialog.addEventListener('close', () => {
   if (dialogOpener?.isConnected && !dialogOpener.closest('[hidden]')) dialogOpener.focus();
   else searchInput.focus();
 });
 
+// Keep pin buttons synchronized when another tab changes or clears browser storage.
 window.addEventListener('storage', (event) => {
   if (event.key !== PINNED_STORAGE_KEY && event.key !== null) return;
   pinned = parsePinnedProjects(event.newValue);
   updateProjects(false);
 });
 
+// Slash focuses search without intercepting typing or shortcuts inside form controls.
 document.addEventListener('keydown', (event) => {
   const target = event.target;
   if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey || dialog.open) return;

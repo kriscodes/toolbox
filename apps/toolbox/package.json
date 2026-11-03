@@ -1,0 +1,17 @@
+{
+  "name": "@toolbox/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "check": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@toolbox/prompt-builder": "1.0.0",
+    "lucide": "1.66.0"
+  }
+}
