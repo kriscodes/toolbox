@@ -67,6 +67,8 @@ Only the current idea, selected options, and optionally the current group's cont
 
 The initial catalog contains **GPT-6 Luna** and **GPT-5.4 Mini**, with Luna selected by default. Requests use the Responses API with `reasoning.effort: none`, `store: false`, and at most 1,800 output tokens. The API allows six generations per minute, 60 per hour, and two concurrent generations. These process-local limits reset on restart and are **not a monthly spending cap**. No automatic retry can silently cause another generation charge.
 
+Generation instructions treat the idea as the source of requested actions and scope. Presets guide presentation, and project context supplies relevant facts and constraints; neither adds tasks. Instructions preserve explicit coverage, order, limits, and exclusions, including broad requests such as testing all functionality. Review real model output against the [scope evaluation cases](docs/prompt-generation-evaluation.md) when changing these instructions; mocked provider tests cannot establish whether a model preserves intent.
+
 ## Render
 
 Both services use the **kristiansalmeron.com** workspace and the same repository, built from its root.

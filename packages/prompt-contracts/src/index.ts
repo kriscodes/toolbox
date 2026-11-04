@@ -5,7 +5,8 @@ export const MODELS = [
 ] as const;
 
 export type ModelId = typeof MODELS[number]['id'];
-export const DEFAULT_MODEL_ID: ModelId = MODELS[0].id;
+// Keep the default independent of how the selector catalog is ordered.
+export const DEFAULT_MODEL_ID: ModelId = 'gpt-6-luna';
 export const TASKS = ['build', 'debug', 'write', 'research', 'plan'] as const;
 export const TONES = ['clear', 'friendly', 'direct'] as const;
 export const FORMATS = ['structured', 'concise', 'checklist'] as const;

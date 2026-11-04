@@ -25,6 +25,18 @@ test('a first visit starts with familiar empty groups, no fabricated prompts, an
   assert.equal(error, null); assert.equal(recovery, null);
 });
 
+// The default applies to new work without replacing the model chosen for a saved prompt.
+test('new drafts use Luna while saved prompts retain their chosen model', function defaultAndSavedModels() {
+  let library = createLibrary();
+  assert.equal(generationRequest(library).modelId, 'gpt-6-luna');
+  library.draft = { ...library.draft, name: 'Mini release prompt', idea: 'Deploy the existing changes.', prompt: 'Deploy the existing changes.', modelId: 'gpt-5.4-mini-2026-03-17' };
+  library = saveDraft(library, 'mini-prompt', '2026-11-03T12:00:00.000Z');
+  const restored = parseLibrary(JSON.parse(serializeLibrary(library)));
+  assert.equal(draftFromPrompt(restored.prompts[0]).modelId, 'gpt-5.4-mini-2026-03-17');
+  restored.draft = createDraft(restored.draft.groupId);
+  assert.equal(generationRequest(restored).modelId, 'gpt-6-luna');
+});
+
 test('damaged or future-version storage is preserved verbatim for recovery', function recoveryData() {
   for (const raw of ['{broken json', '{"version":9000}', 'null']) {
     const loaded = loadLibrary(raw);
