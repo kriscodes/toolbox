@@ -17,11 +17,15 @@
     "start:api": "npm run start --workspace @toolbox/prompt-api",
     "check": "npm run check --workspaces --if-present",
     "lint": "eslint . --max-warnings 0",
-    "test": "npm run test --workspaces --if-present",
-    "build": "npm run check && npm run build --workspace @toolbox/web",
+    "test": "npm run test --workspaces --if-present && node --test scripts/verify-public-build.test.mjs",
+    "build": "npm run check && npm run build --workspace @toolbox/web && node scripts/verify-public-build.mjs",
     "verify": "npm run lint && npm test && npm run build",
     "preview": "npm run preview --workspace @toolbox/web",
-    "assets": "node scripts/prepare-assets.mjs"
+    "assets": "node scripts/prepare-assets.mjs",
+    "assets:brand": "node scripts/prepare-brand-assets.mjs",
+    "dev:archive": "vite --config archive/2026-11-toolbox/vite.config.ts",
+    "build:archive": "vite build --config archive/2026-11-toolbox/vite.config.ts",
+    "test:archive": "node --experimental-strip-types --test archive/2026-11-toolbox/web/tests/*.test.mjs"
   },
   "overrides": {
     "minimatch": "11.0.1"

@@ -10,11 +10,7 @@ export default defineConfig({
     rolldownOptions: {
       input: {
         dashboard: fileURLToPath(new URL('./index.html', import.meta.url)),
-        promptBuilder: fileURLToPath(new URL('./tools/prompt-builder/index.html', import.meta.url)),
       },
     },
-  },
-  server: {
-    proxy: { '/api': { target: 'http://127.0.0.1:3001', changeOrigin: true } },
   },
 });

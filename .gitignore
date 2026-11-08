@@ -7,3 +7,4 @@ dist/
 coverage/
 *.local
 .npm-cache/
+archive/**/dist/
