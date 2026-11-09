@@ -17,7 +17,7 @@ export function initializeAppearance(): void {
   function applyTheme(theme: Theme): void {
     document.documentElement.dataset.theme = theme;
     button!.setAttribute('aria-pressed', String(theme === 'dark'));
-    if (themeColor) themeColor.content = theme === 'dark' ? '#101113' : '#ffffff';
+    if (themeColor) themeColor.content = theme === 'dark' ? '#13251d' : '#eef3e8';
   }
 
   applyTheme(parseTheme(document.documentElement.dataset.theme ?? null));

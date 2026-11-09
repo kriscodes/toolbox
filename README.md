@@ -1,8 +1,12 @@
 # Toolbox — Kristian Salmeron
 
-Toolbox is the practical developer-utilities part of Kristian's independent Portfolio, Toolbox, and Engineering Lab ecosystem. This repository keeps its existing Vite and TypeScript architecture and Render publish directory.
+Toolbox is the practical developer-utilities part of Kristian's independent Portfolio, Toolbox, and Engineering Lab ecosystem. This repository keeps its existing Vite and TypeScript architecture and Render publish directory. The current design uses Pine & mint colors, Space Grotesk and DM Sans, a geometric stamp, horizontal navigation, and a flat layout.
 
 The public application currently publishes only the Toolbox landing page. Prompt Builder, Family Map, and Home Cameras are archived and do not appear in its navigation, catalog, or public build. New utilities should be listed only when they work; the homepage does not fill categories with planned projects.
+
+[![Check](https://github.com/kriscodes/toolbox/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/kriscodes/toolbox/actions/workflows/check.yml)
+
+![Toolbox homepage — Pine & mint design](docs/previews/toolbox-desktop.jpg)
 
 ## Repository boundaries
 
@@ -14,7 +18,7 @@ The public application currently publishes only the Toolbox landing page. Prompt
 | `apps/prompt-api` | Retained archived Node AI gateway |
 | `packages/prompt-contracts` | Retained prompt model catalog, validation, and types |
 
-All workspaces continue to use one npm lockfile. Portfolio stays in its existing repository; the planned Engineering Lab will have its own repository and independent release lifecycle. There is no shared runtime dependency between these websites.
+All workspaces continue to use one npm lockfile. Portfolio, Toolbox, and Engineering Lab have independent repositories and release lifecycles. There is no shared runtime dependency between these websites.
 
 ## Develop and verify
 
@@ -41,7 +45,7 @@ Repository conventions continue to require consistent TypeScript imports and pur
 
 ## Archived projects and data
 
-See [the archive guide](archive/2026-11-toolbox/README.md) for local inspection, optional archive builds, original source locations, and browser-library recovery constraints. The [original README](archive/2026-11-toolbox/ORIGINAL-README.md) retains prior setup and operational details.
+See [the archive guide](archive/2026-11-toolbox/README.md) for local inspection, optional archive builds, original source locations, and browser-library recovery constraints. The [original README](archive/2026-11-toolbox/ORIGINAL-README.md) retains prior setup and operational details. The separately maintained [operations guide](docs/operations.md) is preserved for the archived application, and [the upstream overview](archive/2026-11-toolbox/UPSTREAM-OVERVIEW.md) records its previous public presentation.
 
 ```sh
 npm run dev:archive

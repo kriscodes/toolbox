@@ -1,13 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#ffffff"/>
-  <path d="M72 116H1128M72 552H1128" stroke="#dfe3e6"/>
-  <g fill="none" stroke="#526b7b" stroke-width="1.7" stroke-linejoin="round"><path d="m86 61 12 7v14l-12 7-12-7V68l12-7Z"/><path d="m74 68 12 7 12-7M86 75v14"/></g>
-  <g font-family="Arial, Helvetica, sans-serif" fill="#22262b">
-    <text x="110" y="85" font-size="28" letter-spacing="-1">toolbox.</text>
-    <text x="1128" y="83" font-size="18" text-anchor="end" fill="#626971">Kristian Salmeron</text>
-    <text x="72" y="303" font-size="100" letter-spacing="-5">Small tools.</text>
-    <text x="72" y="410" font-size="100" letter-spacing="-5" fill="#526b7b">Less friction.</text>
-    <text x="72" y="510" font-size="23" fill="#626971">Focused utilities for everyday engineering work.</text>
-    <text x="72" y="591" font-size="17" fill="#626971">toolbox.kristiansalmeron.com</text>
+  <rect width="1200" height="630" fill="#eef3e8"/>
+  <path d="M0 3H1200" stroke="#216b4c" stroke-width="6"/>
+  <path d="M72 502H1128" stroke="#cedacc"/>
+  <g font-family="DM Sans, sans-serif" fill="#193c30">
+    <text x="72" y="79" font-size="20">Kristian Salmeron</text>
+    <text x="72" y="390" font-size="29">An independent home for useful developer tools.</text>
+    <text x="72" y="435" font-size="21" fill="#526b5e">Made to be useful. Kept simple.</text>
+    <text x="72" y="558" font-size="20" fill="#526b5e">toolbox.kristiansalmeron.com</text>
+  </g>
+  <text x="63" y="304" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="184" letter-spacing="-13" fill="#193c30">toolbox</text>
+  <g transform="translate(625 187) rotate(-12)" fill="#216b4c">
+    <rect x="-34" y="-5.5" width="68" height="11" rx="1"/>
+    <rect x="-34" y="-5.5" width="68" height="11" rx="1" transform="rotate(60)"/>
+    <rect x="-34" y="-5.5" width="68" height="11" rx="1" transform="rotate(120)"/>
   </g>
 </svg>

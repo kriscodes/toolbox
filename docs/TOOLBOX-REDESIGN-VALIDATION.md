@@ -1,12 +1,14 @@
 # Toolbox redesign validation
 
-Review date: November 8, 2026. Base: `c13d02dda8d596b0e4616f3bbc4eaa7ff44e591c`.
+Review date: November 8, 2026. Archive base: `c13d02dda8d596b0e4616f3bbc4eaa7ff44e591c`. Upstream documentation reconciled through `adbc128`.
 
 ## Resulting behavior
 
-The public site is a light-first landing page with an optional dark appearance and an honest empty collection. Prompt Builder, Family Map, and Home Cameras have no public listings, pages, artwork, or application bundles in the build. No replacement utilities or empty categories were introduced.
+The public homepage implements the reviewed open composition with the working Pine & mint palette: Space Grotesk wordmark, geometric stamp, horizontal navigation, flat publication status, native About expansion, and an author/source footer. There is no sidebar, central collection pane, placeholder utility, palette picker, or preview-only design control.
 
-The original workbench is preserved in `archive/2026-11-toolbox/`. The Prompt Builder editor, generation API, shared contracts, storage keys, and npm lockfile are unchanged. The optional archive has its own development configuration and output directory.
+Prompt Builder, Family Map, and Home Cameras remain absent from public listings, pages, artwork, and application bundles. The original workbench remains preserved in `archive/2026-11-toolbox/`. The retained editor, generation API, contracts, original storage semantics, and npm lockfile are unchanged.
+
+Both typefaces are served locally with their licenses. The favicon and sharing image match the new stamp and colors. The sharing image remains reproducible from its vector source using the committed fonts and an ignored local font cache.
 
 ## Automated checks
 
@@ -17,21 +19,25 @@ Checked using Node 22.23.4:
 - TypeScript checks for all workspaces: passed.
 - Public Vite production build: passed.
 - Public build audit: passed; 11 files and 6 referenced resources. Checks cover metadata, static readable content, crawler files, missing resources, retired routes/artwork/API code, and storage clearing.
-- Optional archive build, archive type check, and three preserved catalog tests: passed.
-- `git diff --check`: passed.
+- Existing appearance tests were updated only for the new light/dark browser-chrome colors. They execute the actual delivered head bootstrap and theme controller, checking persistence, cross-tab behavior, unavailable storage, and exact preservation of valid and malformed archived data.
+- No new tests mirror the static layout. Native About behavior and responsive composition are covered by browser review.
 
-Appearance tests execute the actual HTML bootstrap and theme controller against controlled storage and DOM doubles. They cover appearance before module initialization, toggle/reload persistence, cross-tab changes, unavailable storage, and exact preservation of both valid and malformed historical library/pin values. Only the new `toolbox.theme.v1` key is accessed.
+The API suite needs permission to bind temporary local loopback ports. An initial restricted run failed with `listen EPERM`; the complete required verification passed when run with local-listener access. Provider calls remain mocked, with no paid requests or production API changes.
 
-Provider tests inject mocked calls. No paid generations or production API changes were performed.
+## Upstream reconciliation
+
+The base branch advanced with documentation-only commits while the design was being reviewed. The local branch merges those commits, preserving their operations guide and dashboard image. Its README conflict is resolved around the current archived/public split, with the CI badge and operational links retained. An exact copy of the upstream overview is retained in `archive/2026-11-toolbox/UPSTREAM-OVERVIEW.md`; the operations guide is explicitly labeled as historical for the archived application.
 
 ## Browser review
 
-Local browser checks covered 1280px desktop, 768px tablet, and 390px/320px mobile layouts. No horizontal document overflow was observed. Light and dark appearances, persistence after reload, navigation destinations, and keyboard skip-to-main behavior were checked. Browser error/warning logs were empty during the review. Public content and navigation are delivered directly in HTML; the appearance control is hidden until JavaScript initializes.
+The production build was reviewed at desktop and 320px mobile widths. The composition matches the approved direction, no horizontal overflow was observed, native About expansion works, and dark appearance persists after reload. The screenshots below record the current implementation; earlier preview images are superseded.
 
-These checks are not a claim of a complete WCAG audit or cross-browser certification. Additional screen-reader and device checks can be included before an approved production release.
+![Current Toolbox desktop preview](previews/toolbox-desktop.jpg)
 
-![Desktop preview](previews/toolbox-desktop.jpg)
+![Current Toolbox mobile preview](previews/toolbox-mobile.jpg)
+
+A browser review is not a complete WCAG audit or cross-browser certification. Production deployment remains a separate owner-approved action.
 
 ## Release boundary
 
-This work is for feature-branch and pull-request review. It does not deploy a site, merge to main, change DNS, stop the existing API service, or change any credentials. Production browser data remains on its original origin; the recovery guide explains why an optional local archive cannot automatically read it.
+This change prepares the existing feature branch and pull request. It does not deploy Toolbox, merge it to main, change DNS, stop an API service, or change credentials. Existing browser data stays on its original origin; the archive guide explains recovery constraints.
