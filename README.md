@@ -1,85 +1,66 @@
-# Toolbox
+# Toolbox — Kristian Salmeron
 
-A personal workbench by [Kristian Salmeron](https://github.com/kriscodes), bringing small, useful tools into one place. Its first working tool is **Prompt Builder**: a React workspace for turning an idea and saved project context into an editable prompt, then organizing that work in a local library.
+Toolbox is the practical developer-utilities part of Kristian's independent Portfolio, Toolbox, and Engineering Lab ecosystem. This repository keeps its existing Vite and TypeScript architecture and Render publish directory. The current design uses Pine & mint colors, Space Grotesk and DM Sans, a geometric stamp, horizontal navigation, and a flat layout.
 
-**[Open Toolbox](https://toolbox.kristiansalmeron.com/)** · **[Open Prompt Builder](https://toolbox.kristiansalmeron.com/tools/prompt-builder/)** · [Architecture decisions](#architecture-and-decisions)
+The public application currently publishes only the Toolbox landing page. Prompt Builder, Family Map, and Home Cameras are archived and do not appear in its navigation, catalog, or public build. New utilities should be listed only when they work; the homepage does not fill categories with planned projects.
 
 [![Check](https://github.com/kriscodes/toolbox/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/kriscodes/toolbox/actions/workflows/check.yml)
 
-![Toolbox dashboard with Prompt Builder and project cards](docs/toolbox-overview.jpg)
+![Toolbox homepage — Pine & mint design](docs/previews/toolbox-desktop.jpg)
 
-_Live Toolbox dashboard · November 8, 2026_
+## Repository boundaries
 
-## What you can do
+| Location | Responsibility |
+| --- | --- |
+| `apps/toolbox` | Public Vite application, assets, and one HTML entry |
+| `archive/2026-11-toolbox` | Preserved earlier workbench, catalog, entry pages, artwork, and local archive configuration |
+| `tools/prompt-builder` | Retained archived React editor and browser library |
+| `apps/prompt-api` | Retained archived Node AI gateway |
+| `packages/prompt-contracts` | Retained prompt model catalog, validation, and types |
 
-- Organize prompts into groups with reusable project context.
-- Choose task, tone, format, and model options for a generation request.
-- Edit a prompt before saving or copying it, then reopen it from the local library.
-- Export and import backups without replacing existing groups and prompts.
+All workspaces continue to use one npm lockfile. Portfolio, Toolbox, and Engineering Lab have independent repositories and release lifecycles. There is no shared runtime dependency between these websites.
 
-**You can explore the editor, write prompts, and save locally without API credentials.** AI generation requires a configured API and a private Workbench access key. It is an optional, separately operated capability; the browser never receives the provider API key.
+## Develop and verify
 
-Family Map and Home Cameras are dashboard project cards. Prompt Builder is the tool implemented in this repository.
-
-## Architecture and decisions
-
-The dashboard and editor ship as one static browser application. A separate Node.js service handles AI generation, and a shared package defines the request contract used on both sides.
-
-```mermaid
-flowchart LR
-  Dashboard[Toolbox dashboard] --> Editor[Prompt Builder]
-  Editor <--> Library[Browser-local prompt library]
-  Editor -->|Generation request| API[Node.js generation API]
-  Editor --> Contracts[Shared contracts]
-  API --> Contracts
-  API --> Provider[OpenAI Responses API]
-```
-
-| Workspace                                                | Responsibility                                                 |
-| -------------------------------------------------------- | -------------------------------------------------------------- |
-| [`apps/toolbox`](apps/toolbox)                           | Vite dashboard, shared public assets, and browser entry points |
-| [`tools/prompt-builder`](tools/prompt-builder)           | React editor and prompt-library behavior                       |
-| [`apps/prompt-api`](apps/prompt-api)                     | Server-side AI generation gateway                              |
-| [`packages/prompt-contracts`](packages/prompt-contracts) | Shared model catalog, request types, and input validation      |
-
-Two decisions shape the first version:
-
-1. **Keep the prompt library in the browser.** Groups, context, saved prompts, and drafts work without an account or database. Export/import provides a backup path. Data does not sync across browsers or devices. See [ADR 0002](docs/adr/0002-local-prompt-library.md).
-2. **Keep generation behind a separate API.** Provider credentials stay on the server. The browser sends only the current generation input, with the current group's context when enabled. See [ADR 0003](docs/adr/0003-ai-generation-gateway.md).
-
-[ADR 0001](docs/adr/0001-monorepo-tool-boundaries.md) covers the npm workspace boundaries and shared static deployment.
-
-## Run locally
-
-Use Node **22.23.4**, matching [`.node-version`](.node-version), and npm. From a local checkout:
+Use Node from `.node-version` and run from the repository root:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open the URL printed by Vite. The dashboard is at `/`; Prompt Builder is at `/tools/prompt-builder/`. Editing and local saving work without the generation service.
-
-To enable AI generation locally, follow [API setup](docs/operations.md#local-ai-generation-setup). Run `npm run dev:api` in a second terminal after configuring its environment. Vite forwards `/api` to port `3001`.
-
-## Quality checks
+The current public application does not require an API key, server, database, or authentication. Its build output remains root `dist/`.
 
 ```sh
 npm run verify
 ```
 
-This command runs ESLint, workspace tests, TypeScript checks, and the production browser build. Individual commands are `npm run lint`, `npm test`, `npm run check`, and `npm run build`.
+Verification runs ESLint, workspace tests, TypeScript checks, and the production browser build. Individual commands remain `npm run lint`, `npm test`, `npm run check`, and `npm run build`. GitHub Actions runs the checks for pull requests and changes to `main`. Use feature branches and pull requests for changes. A production deployment or DNS change requires separate owner approval.
 
-The tests cover request validation, API authorization and failure behavior, prompt-library integrity, and dashboard behavior. Provider calls are injected in tests, so the suite does not require an API key or incur generation charges. A live generation check is a separate deployment step. The [Check workflow](.github/workflows/check.yml) defines CI for pull requests and changes to `main`; its latest results are available in [Actions](https://github.com/kriscodes/toolbox/actions).
+The build also audits the actual public output for metadata, asset references, crawler files, and accidentally included archived material. See the [visual specification](docs/VISUAL-SPECIFICATION.md) and [redesign validation record](docs/TOOLBOX-REDESIGN-VALIDATION.md). Regenerate the committed sharing image from its vector source with `npm run assets:brand`.
 
-## Scope and limitations
+The retained suites still check dashboard search/pins/URL behavior, prompt-library recovery and lifecycle, API validation/authorization/failures, cancellation, and provider transport boundaries. Provider calls are injected in tests, so the suite does not require credentials or incur generation charges. Browser and accessibility checks complement these unit tests when changing public interfaces.
 
-- The local library belongs to the current browser profile and origin. Export a backup before clearing site data or changing browsers.
-- Imports add copies. Invalid saved data is retained for recovery, and storage failures are reported in the interface.
-- The generation access key is a single-owner gate, not a multi-user account system. It stays in memory for the current visit.
-- Rate limits are local to one API process and reset on restart. They are not a monthly spending cap.
-- Mocked provider tests check application behavior; they cannot establish the quality or scope preservation of real model output. See the [generation evaluation cases](docs/prompt-generation-evaluation.md).
+Repository conventions continue to require consistent TypeScript imports and purpose-oriented JSDoc on named functions, components, and handlers. Keep data transformations and validation separate from rendering. TypeScript remains on the supported 6.x line for the current ESLint parser; the existing patched `minimatch` override remains in place.
 
-## Operations and maintenance
+## Archived projects and data
 
-[Operations guide](docs/operations.md) covers environment variables, Render deployment, model settings, generation limits, coding conventions, and artwork regeneration. The dashboard uses warm charcoal, pencil illustrations, and self-hosted Manrope; source artwork and font licensing remain in the repository.
+See [the archive guide](archive/2026-11-toolbox/README.md) for local inspection, optional archive builds, original source locations, and browser-library recovery constraints. The [original README](archive/2026-11-toolbox/ORIGINAL-README.md) retains prior setup and operational details. The separately maintained [operations guide](docs/operations.md) is preserved for the archived application, and [the upstream overview](archive/2026-11-toolbox/UPSTREAM-OVERVIEW.md) records its previous public presentation.
+
+```sh
+npm run dev:archive
+npm run test:archive
+npm run build:archive
+```
+
+The optional archive runs on `127.0.0.1:4175` and builds into its own ignored directory. It has no public route in the normal build. The historical sketches and Manrope font are stored only in the archive; `npm run assets` regenerates those archive assets and does not repopulate the public directory.
+
+No personal library data is migrated, deleted, or uploaded. The original local-storage schema and keys remain unchanged in the retained editor. A local archive is a different browser origin and cannot automatically access existing production-origin libraries; use an exported backup or a deliberate approved same-origin recovery procedure.
+
+## Deployment
+
+The existing public Render configuration remains a repository-root build with `npm ci && npm run build`, publishing `dist`. This change preserves that contract and does not reconfigure a running service. The default browser build emits only the public homepage; it does not emit `/tools/prompt-builder/` or copy archived source/assets.
+
+The existing Prompt API source and service settings are preserved, but the new public homepage does not use that API. Do not remove production credentials, stop services, change DNS, or deploy archive output as part of a frontend-only update. Retirement or public restoration of an archived service is a separate decision.
+
+Before any approved release, run verification, inspect the generated output for excluded archive routes/assets, and validate the deployed homepage, crawler files, metadata, keyboard navigation, and mobile layout. A successful build alone does not verify the live website.

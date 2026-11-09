@@ -4,7 +4,7 @@ import jsdoc from 'eslint-plugin-jsdoc';
 import globals from 'globals';
 
 export default [
-  { ignores: ['node_modules/**', 'dist/**', 'coverage/**', '**/node_modules/**'] },
+  { ignores: ['node_modules/**', 'dist/**', 'archive/**/dist/**', 'coverage/**', '**/node_modules/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

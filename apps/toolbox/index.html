@@ -1,23 +1,54 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1b1917" />
-    <meta name="description" content="Kristian's personal workbench. A growing collection of useful tools and projects." />
+    <meta name="theme-color" content="#eef3e8" />
+    <meta name="description" content="An independent home for useful developer tools by Kristian Salmeron. Made for the everyday work of building things." />
     <meta property="og:title" content="Toolbox — Kristian Salmeron" />
-    <meta property="og:description" content="A personal workbench for useful tools and projects." />
+    <meta property="og:description" content="Made to be useful. Kept simple. Developer utilities by Kristian Salmeron." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://toolbox.kristiansalmeron.com/" />
+    <meta property="og:image" content="https://toolbox.kristiansalmeron.com/social-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Toolbox — developer utilities by Kristian Salmeron." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Toolbox — Kristian Salmeron" />
+    <meta name="twitter:description" content="Made to be useful. Kept simple. Developer utilities by Kristian Salmeron." />
+    <meta name="twitter:image" content="https://toolbox.kristiansalmeron.com/social-preview.png" />
     <link rel="canonical" href="https://toolbox.kristiansalmeron.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script>
+      // Apply only this site's appearance preference before paint.
+      try {
+        if (localStorage.getItem('toolbox.theme.v1') === 'dark') {
+          document.documentElement.dataset.theme = 'dark';
+          document.querySelector('meta[name="theme-color"]').content = '#13251d';
+        }
+      } catch { /* The page stays readable when browser storage is unavailable. */ }
+    </script>
     <title>Toolbox — Kristian Salmeron</title>
   </head>
   <body>
-    <a class="skip-link" href="#workbench">Skip to projects</a>
-    <div id="app"></div>
-    <noscript><p class="noscript">Please enable JavaScript to browse the Toolbox.</p></noscript>
+    <a class="skip-link" href="#main">Skip to content</a>
+<div id="toolbox">
+  <header class="toolbox-masthead">
+    <a class="toolbox-maker" href="https://kristiansalmeron.com/" target="_blank" rel="noopener noreferrer"><span class="toolbox-maker-initials" aria-hidden="true">KS</span><span class="toolbox-maker-divider" aria-hidden="true"></span>Kristian Salmeron</a>
+    <nav class="toolbox-nav" aria-label="Main navigation"><a href="https://kristiansalmeron.com/" target="_blank" rel="noopener noreferrer">Portfolio<i class="toolbox-link-arrow" data-lucide="arrow-up-right" aria-hidden="true"></i></a><a href="https://github.com/kriscodes/toolbox" target="_blank" rel="noopener noreferrer">GitHub<i class="toolbox-link-arrow" data-lucide="arrow-up-right" aria-hidden="true"></i></a><button class="toolbox-appearance theme-toggle" type="button" aria-label="Dark appearance" aria-pressed="false" hidden><i data-lucide="sun-moon" aria-hidden="true"></i></button></nav>
+  </header>
+  <main id="main" class="toolbox-main" tabindex="-1">
+    <div class="toolbox-identity"><h1 class="toolbox-wordmark">toolbox<span class="toolbox-stamp" aria-hidden="true"><span></span><span></span><span></span></span></h1><p class="toolbox-description">An independent home for useful developer tools. Made for the everyday work of building things.</p></div>
+    <p class="toolbox-subline"><span class="toolbox-subline-rule" aria-hidden="true"></span>Made to be useful. Kept simple.</p>
+    <div class="toolbox-publication"><p class="toolbox-margin-label">On the workbench</p><p class="toolbox-publication-line">No tools published yet.<span>A little room for what’s next.</span></p></div>
+    <details class="toolbox-about"><summary class="cursor-interaction"><span class="toolbox-margin-label">A personal project</span><span class="toolbox-about-title">A little about this place</span><i data-lucide="plus" aria-hidden="true"></i></summary><div class="toolbox-about-content"><p>A small collection of practical utilities by <a href="https://kristiansalmeron.com/" target="_blank" rel="noopener noreferrer">Kristian Salmeron</a>. Each addition should do a useful job clearly, with source you can inspect.</p></div></details>
+  </main>
+  <footer class="toolbox-footer"><a class="toolbox-footer-signature" href="https://kristiansalmeron.com/" target="_blank" rel="noopener noreferrer"><span class="toolbox-stamp" aria-hidden="true"><span></span><span></span><span></span></span>Kristian Salmeron</a><a class="toolbox-source" href="https://github.com/kriscodes/toolbox" target="_blank" rel="noopener noreferrer">Follow the source<i class="toolbox-link-arrow" data-lucide="arrow-up-right" aria-hidden="true"></i></a></footer>
+  <p id="appearance-status" class="toolbox-status" role="status" aria-live="polite"></p>
+</div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

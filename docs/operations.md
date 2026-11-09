@@ -1,5 +1,7 @@
 # Toolbox operations and maintenance
 
+> Historical operations for the archived Prompt Builder and earlier dashboard. The current public homepage has no generation or project routes. Use [the archive guide](../archive/2026-11-toolbox/README.md) for its separate local configuration; these deployment instructions do not authorize changing any running service.
+
 This guide keeps deployment, configuration, and maintenance details separate from the [project overview](../README.md). Unless a link says otherwise, file paths and shell commands are relative to the repository root.
 
 ## Local AI generation setup
