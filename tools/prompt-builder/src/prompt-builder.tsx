@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode, type SyntheticEvent } from 'react';
 import { MAX_CONTEXT_LENGTH, MAX_IDEA_LENGTH, MAX_PROMPT_LENGTH, MODELS, TASKS, type GenerationRequest } from '@toolbox/prompt-contracts';
 import { PromptApiError, requestPrompt } from './client';
+import { ConfirmationDialog, type ConfirmationOptions } from './confirmation';
+import { createConfirmationRequest } from './confirmation-request';
 import {
   STORAGE_KEY, MAX_LIBRARY_BYTES, MAX_NAME_LENGTH, createDraft, createLibrary, deleteGroup, deletePrompt,
   draftFromPrompt, generationRequest, importLibrary, isDraftDirty, parseLibrary, readBrowserLibrary,
@@ -52,9 +54,10 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 }
 
 /** Edit a group's reusable context in a separate draft until the user explicitly saves it. */
-function GroupEditor({ group, isNew, disabled, onSave, onClose, onDelete }: {
+function GroupEditor({ group, isNew, disabled, onSave, onClose, onDelete, confirm }: {
   group: Group; isNew: boolean; onSave: (id: string, name: string, context: string) => void;
   onClose: () => void; onDelete: () => void; disabled: boolean;
+  confirm: (options: ConfirmationOptions) => Promise<boolean>;
 }): ReactNode {
   const [name, setName] = useState(group.name);
   const [context, setContext] = useState(group.context);
@@ -70,8 +73,13 @@ function GroupEditor({ group, isNew, disabled, onSave, onClose, onDelete }: {
   /** Update the temporary project context without touching the stored library yet. */
   function changeContext(event: ChangeEvent<HTMLTextAreaElement>): void { setContext(event.target.value); }
   /** Ask before dismissing edited group details, including an Escape-key dismissal. */
-  function closeEditor(): void {
-    if ((name !== group.name || context !== group.context) && !window.confirm('Discard these unsaved group changes?')) return;
+  async function closeEditor(): Promise<void> {
+    if ((name !== group.name || context !== group.context) && !await confirm({
+      kicker: 'Unsaved group changes', title: 'Discard these changes?',
+      description: 'Your edits to this group’s name and project context haven’t been saved. Closing will discard them.',
+      recordName: name.trim() || 'New group', recordMeta: 'Group details · Unsaved changes',
+      confirmLabel: 'Discard changes', cancelLabel: 'Keep editing',
+    })) return;
     onClose();
   }
   return <Modal title={isNew ? 'New group' : 'Project context'} onClose={closeEditor}>
@@ -115,7 +123,22 @@ export function PromptBuilder(): ReactNode {
   const [dark, setDark] = useState(document.documentElement.dataset.theme === 'dark');
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [showSaved, setShowSaved] = useState(false);
+  const [confirmation, setConfirmation] = useState<{ id: number; options: ConfirmationOptions } | null>(null);
+  const confirmationId = useRef(0);
   const libraryRef = useRef(library);
+  const storageBlockedRef = useRef(recovery !== null || externalChange);
+  /** Keep a single pending decision and reject approval for a library that has since changed. */
+  function createConfirmations() {
+    return createConfirmationRequest({
+      /** Read the latest library immediately before applying a confirmed action. */
+      getSnapshot: function currentLibrary() { return libraryRef.current; },
+      /** Give each mounted dialog its own focus and one-time resolution lifecycle. */
+      onChange: function showConfirmation(options) {
+        setConfirmation(options ? { id: ++confirmationId.current, options } : null);
+      },
+    });
+  }
+  const [confirmations] = useState(createConfirmations);
   const fileInput = useRef<HTMLInputElement>(null);
   const output = useRef<HTMLTextAreaElement>(null);
   const request = useRef<AbortController | null>(null);
@@ -153,8 +176,18 @@ export function PromptBuilder(): ReactNode {
   useEffect(applyAppearance, [dark]);
 
   /** Keep file-import completion pointed at the newest editor state after its asynchronous read. */
-  function rememberCurrentLibrary(): void { libraryRef.current = library; }
-  useEffect(rememberCurrentLibrary, [library]);
+  function rememberCurrentLibrary(): void {
+    if (libraryRef.current !== library) confirmations.cancel();
+    libraryRef.current = library;
+    storageBlockedRef.current = storageBlocked;
+  }
+  useEffect(rememberCurrentLibrary, [library, storageBlocked, confirmations]);
+
+  /** Settle pending decisions without running their actions after the tool is unmounted. */
+  function attachConfirmationCleanup(): () => void {
+    return function disposeConfirmations(): void { confirmations.dispose(); };
+  }
+  useEffect(attachConfirmationCleanup, [confirmations]);
 
   /** Autosave the library and unfinished editor, but never overwrite damaged or concurrently changed data. */
   function persistLibrary(): void {
@@ -167,7 +200,13 @@ export function PromptBuilder(): ReactNode {
   /** Detect another tab writing the same local library so neither tab silently overwrites the other. */
   function observeOtherTabs(): () => void {
     /** Pause persistence when another tab changes or clears this library's storage key. */
-    function onStorage(event: StorageEvent): void { if (event.key === STORAGE_KEY || event.key === null) setExternalChange(true); }
+    function onStorage(event: StorageEvent): void {
+      if (event.key === STORAGE_KEY || event.key === null) {
+        storageBlockedRef.current = true;
+        confirmations.cancel();
+        setExternalChange(true);
+      }
+    }
     window.addEventListener('storage', onStorage);
     /** Release the cross-tab listener when the user leaves the tool. */
     function stopObserving(): void { window.removeEventListener('storage', onStorage); }
@@ -204,29 +243,35 @@ export function PromptBuilder(): ReactNode {
   }
 
   /** Confirm a destructive editor replacement; a running request must first be canceled. */
-  function mayReplaceDraft(): boolean {
+  async function mayReplaceDraft(): Promise<boolean> {
+    if (storageBlockedRef.current) return false;
     if (busy) { setError('Cancel the current generation before changing prompts.'); return false; }
-    return !dirty || window.confirm('Replace this unsaved draft? Save it first if you want to keep it.');
+    return !dirty || confirmations.ask({
+      kicker: 'Unsaved draft', title: 'Replace this draft?',
+      description: 'Your current changes haven’t been saved to the library. Continuing will discard them.',
+      recordName: draft.name.trim() || 'Untitled prompt', recordMeta: `${group.name} · Unsaved changes`,
+      confirmLabel: 'Discard & continue', cancelLabel: 'Keep editing',
+    });
   }
 
   /** Start an empty prompt within the current project group after protecting unsaved work. */
-  function newPrompt(): void {
-    if (!mayReplaceDraft()) return;
+  async function newPrompt(): Promise<void> {
+    if (!await mayReplaceDraft()) return;
     setLibrary({ ...library, draft: createDraft(group.id) }); setError(''); setNotice('New prompt ready.'); setShowSaved(false);
   }
 
   /** Switch groups and open a fresh composer after checking for unsaved editor changes. */
-  function selectGroup(event: React.MouseEvent<HTMLButtonElement>): void {
+  async function selectGroup(event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
     const id = event.currentTarget.dataset.groupId;
-    if (!id || id === group.id || !mayReplaceDraft()) return;
+    if (!id || id === group.id || !await mayReplaceDraft()) return;
     setLibrary({ ...library, draft: createDraft(id) }); setError(''); setNotice('');
   }
 
   /** Reopen a saved prompt with its generation preferences and editable text intact. */
-  function openSaved(event: React.MouseEvent<HTMLButtonElement>): void {
+  async function openSaved(event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
     const id = event.currentTarget.dataset.promptId;
     const prompt = library.prompts.find(function findPrompt(item) { return item.id === id; });
-    if (!prompt || prompt.id === draft.savedId || !mayReplaceDraft()) return;
+    if (!prompt || prompt.id === draft.savedId || !await mayReplaceDraft()) return;
     setLibrary({ ...library, draft: draftFromPrompt(prompt) }); setError(''); setNotice('Saved prompt opened.'); setShowSaved(false);
   }
 
@@ -250,9 +295,14 @@ export function PromptBuilder(): ReactNode {
   /** Generate a real prompt once, replacing output only after a complete validated server response. */
   async function generate(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    if (busy || !draft.idea.trim()) return;
+    if (busy || storageBlockedRef.current || !draft.idea.trim()) return;
     if (!accessKey) { setAccessOpen(true); return; }
-    if (draft.prompt.trim() && dirty && !window.confirm('Replace your current unsaved prompt with a new generation?')) return;
+    if (draft.prompt.trim() && dirty && !await confirmations.ask({
+      kicker: 'Unsaved prompt', title: 'Build a new version?',
+      description: 'A successful generation will replace your current unsaved prompt. Keep editing if you want to save it first.',
+      recordName: draft.name.trim() || 'Untitled prompt', recordMeta: `${group.name} · Unsaved changes`,
+      confirmLabel: 'Build new version', cancelLabel: 'Keep editing',
+    })) return;
     const controller = new AbortController(); request.current = controller;
     setBusy(true); setError(''); setNotice('Building your prompt…');
     // Include time for a sleeping free backend to wake up, while still giving requests a finite lifetime.
@@ -291,8 +341,13 @@ export function PromptBuilder(): ReactNode {
   }
 
   /** Remove a saved prompt only after naming the entry and confirming the deletion. */
-  function removeCurrentPrompt(): void {
-    if (!draft.savedId || !window.confirm(`Delete “${draft.name}” and its current edits? This cannot be undone.`)) return;
+  async function removeCurrentPrompt(): Promise<void> {
+    if (!draft.savedId || storageBlockedRef.current || !await confirmations.ask({
+      kicker: 'Delete prompt', title: 'Delete this prompt?',
+      description: `“${draft.name.trim() || 'Untitled prompt'}” and its current edits will be permanently removed. This cannot be undone.`,
+      recordName: draft.name.trim() || 'Untitled prompt', recordMeta: `Saved in ${group.name}`,
+      confirmLabel: 'Delete prompt', cancelLabel: 'Keep prompt', destructive: true,
+    })) return;
     setLibrary(deletePrompt(library, draft.savedId)); setNotice('Prompt deleted.'); setError('');
   }
 
@@ -317,10 +372,15 @@ export function PromptBuilder(): ReactNode {
     setLibrary(isNew && !dirty ? { ...next, draft: createDraft(id) } : next); setNotice('Group context saved.');
   }
   /** Confirm a whole-group deletion, including its saved prompts and active draft. */
-  function removeEditingGroup(): void {
-    if (!editingGroup || storageBlocked) return;
+  async function removeEditingGroup(): Promise<void> {
+    if (!editingGroup || storageBlockedRef.current) return;
     const count = library.prompts.filter(function countGroupPrompts(prompt) { return prompt.groupId === editingGroup.id; }).length;
-    if (!window.confirm(`Delete “${editingGroup.name}”, its context, and ${count} saved prompt${count === 1 ? '' : 's'}? Any open draft in this group will also be removed. This cannot be undone.`)) return;
+    if (!await confirmations.ask({
+      kicker: 'Delete group', title: `Delete “${editingGroup.name}”?`,
+      description: `This will permanently remove its context, ${count} saved prompt${count === 1 ? '' : 's'}, and any open draft in this group. This cannot be undone.`,
+      recordName: editingGroup.name, recordMeta: `${count} saved prompt${count === 1 ? '' : 's'} · Project context · Open draft`,
+      confirmLabel: 'Delete group', cancelLabel: 'Keep group', destructive: true,
+    })) return;
     try { setLibrary(deleteGroup(library, editingGroup.id)); setEditingGroup(null); setNotice('Group deleted.'); setError(''); }
     catch (error) { setError(error instanceof Error ? error.message : 'The group could not be deleted.'); setEditingGroup(null); }
   }
@@ -344,10 +404,16 @@ export function PromptBuilder(): ReactNode {
     try {
       if (file.size > MAX_LIBRARY_BYTES) throw new Error('Choose a backup smaller than 2 MB.');
       const imported = parseLibrary(JSON.parse(await file.text()) as unknown);
+      if (storageBlockedRef.current) throw new Error('Saving is paused. Recover or reload your library before importing.');
       // Validate before setting state so an invalid merge cannot throw during React's render cycle.
       const merged = importLibrary(libraryRef.current, imported, makeId);
-      const draftWarning = isDraftDirty(libraryRef.current) ? ' This replaces your current unsaved draft; save or export it first if you want to keep it.' : '';
-      if (!window.confirm(`Import ${imported.groups.length} groups and ${imported.prompts.length} saved prompts as new copies, then open the backed-up draft?${draftWarning}`)) return;
+      const draftWarning = isDraftDirty(libraryRef.current) ? ' This replaces your unsaved draft. Save or export it first if you want to keep it.' : '';
+      if (!await confirmations.ask({
+        kicker: 'Import backup', title: 'Import this backup?',
+        description: `Groups and saved prompts will be added as new copies, then the backed-up draft will open.${draftWarning}`,
+        recordName: file.name, recordMeta: `${imported.groups.length} groups · ${imported.prompts.length} saved prompts`,
+        confirmLabel: 'Import backup', cancelLabel: 'Keep current library',
+      })) return;
       setLibrary(merged);
       setNotice('Backup imported as new copies.'); setError('');
     } catch (error) { setError(error instanceof Error ? error.message : 'The backup could not be imported.'); }
@@ -356,12 +422,24 @@ export function PromptBuilder(): ReactNode {
   /** Download the untouched unreadable data before the user chooses whether to reset it. */
   function exportRecovery(): void { if (recovery !== null) downloadJson(recovery, 'toolbox-prompts-recovery.json'); }
   /** Replace damaged storage only after explicit confirmation; the recovery download remains available first. */
-  function resetLibrary(): void {
-    if (!window.confirm('Start a fresh library? Download the recovery copy first if you want to keep the old data.')) return;
+  async function resetLibrary(): Promise<void> {
+    if (!await confirmations.ask({
+      kicker: 'Reset library', title: 'Start a fresh library?',
+      description: 'The stored library will be replaced. Download the recovery copy first if you want to keep the old data. This cannot be undone.',
+      recordName: 'Stored library', recordMeta: 'Recovery copy available before resetting',
+      confirmLabel: 'Start fresh', cancelLabel: 'Keep library', destructive: true,
+    })) return;
     setRecovery(null); setStorageError(''); setLibrary(createLibrary()); setNotice('A fresh library is ready.');
   }
   /** Reload only after protecting edits when a second browser tab has changed the library. */
-  function reloadLibrary(): void { if (!dirty || window.confirm('Reload the other tab’s library? Export a backup first to keep this tab’s current edits.')) window.location.reload(); }
+  async function reloadLibrary(): Promise<void> {
+    if (!dirty || await confirmations.ask({
+      kicker: 'Library changed', title: 'Reload this library?',
+      description: 'This will load the other tab’s library and replace this tab’s current edits. Export a backup first if you want to keep them.',
+      recordName: draft.name.trim() || 'Current draft', recordMeta: `${group.name} · Changes in another tab`,
+      confirmLabel: 'Reload library', cancelLabel: 'Keep this tab open',
+    })) window.location.reload();
+  }
   /** Show or hide the saved prompt list on compact mobile screens. */
   function toggleSaved(): void { setShowSaved(!showSaved); }
   /** Open AI access settings without making a generation request. */
@@ -425,7 +503,8 @@ export function PromptBuilder(): ReactNode {
         <div className="pb-feedback" aria-live="polite" role="status">{visibleNotice}</div>{error && <p className="pb-error" role="alert">{error}</p>}
       </main>
     </div>
-    {editingGroup && <GroupEditor key={editingGroup.id} group={editingGroup} disabled={storageBlocked} isNew={!library.groups.some(function existingGroup(item) { return item.id === editingGroup.id; })} onSave={commitGroup} onClose={closeGroupEditor} onDelete={removeEditingGroup} />}
+    {editingGroup && <GroupEditor key={editingGroup.id} group={editingGroup} disabled={storageBlocked} isNew={!library.groups.some(function existingGroup(item) { return item.id === editingGroup.id; })} onSave={commitGroup} onClose={closeGroupEditor} onDelete={removeEditingGroup} confirm={confirmations.ask} />}
     {accessOpen && <AccessEditor unlocked={Boolean(accessKey)} onUnlock={unlockAccess} onLock={lockAccess} onClose={closeAccess} />}
+    {confirmation && <ConfirmationDialog key={confirmation.id} options={confirmation.options} onResolve={confirmations.resolve} />}
   </div>;
 }

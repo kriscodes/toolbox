@@ -59,6 +59,8 @@ The API can use a free web service because it does not persist data. A free inst
 
 Groups, project context, saved prompts, and the current draft are stored in the current browser. They do not sync across devices. Export backups before changing browsers or clearing site data. Imports create copies instead of replacing existing groups. Invalid saved data is retained for recovery, and storage failures are shown in the interface.
 
+In-app discard, deletion, import, and recovery actions use the Editorial confirmation dialog. The safe action receives keyboard focus; Escape or the close control cancels. A library change in another tab cancels a pending confirmation so approval cannot apply to stale data. Browser-controlled warnings when leaving or reloading the page remain native.
+
 Only the current idea, selected options, and optionally the current group's context are sent for generation. Other groups and saved prompts stay in the browser. The Workbench access key stays in memory for the current visit; the OpenAI key stays on the API server. Generated text remains editable before saving or copying.
 
 The catalog contains **GPT-6 Luna** and **GPT-5.4 Mini**, with Luna selected by default. Requests use the Responses API with `reasoning.effort: none`, `store: false`, and at most 1,800 output tokens. The API allows six generations per minute, 60 per hour, and two concurrent generations. These process-local limits reset on restart and are **not a monthly spending cap**. No automatic retry can silently cause another generation charge.

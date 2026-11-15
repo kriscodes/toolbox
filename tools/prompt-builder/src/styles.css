@@ -135,3 +135,35 @@ html[data-theme='dark'] .pb-app{--pb-bg:#101d2c;--pb-ink:#edf4ff;--pb-muted:#a9b
 @media(max-width:360px){.pb-intro h1{font-size:42px}.pb-options{grid-template-columns:1fr}}
 @media(pointer:coarse){.pb-group,.pb-saved-item,.pb-presets button,.pb-copy,.pb-save,.pb-details summary,.pb-text-button,.pb-icon-button{min-height:44px}.pb-text-button{display:inline-flex;align-items:center}.pb-icon-button{min-width:38px}.pb-theme{width:44px;height:44px}.pb-backup-actions>.pb-text-button{min-height:30px}}
 @media(prefers-reduced-motion:reduce){.pb-app *{scroll-behavior:auto!important;transition:none!important}}
+
+/* Editorial confirmations keep the affected record and both choices together. */
+.pb-confirm{background:var(--pb-surface);color:var(--pb-ink);font:400 14px/1.65 'DM Sans',sans-serif;width:min(496px,calc(100% - 32px));max-height:calc(100dvh - 40px);margin:auto;padding:0;overflow:auto;border:1px solid var(--pb-line);border-top:3px solid var(--pb-accent);border-radius:3px;box-shadow:0 12px 36px #172b4524;overscroll-behavior:contain}
+.pb-confirm::backdrop{background:var(--pb-overlay)}
+.pb-confirm[data-destructive=true]{border-top-color:var(--pb-danger)}
+.pb-confirm-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:23px 30px 0}
+.pb-confirm-kicker{display:flex;align-items:center;gap:9px;min-width:0;color:var(--pb-accent);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;overflow-wrap:anywhere}
+.pb-confirm[data-destructive=true] .pb-confirm-kicker{color:var(--pb-danger)}
+.pb-confirm-kicker svg{width:15px;height:15px}
+.pb-confirm .pb-confirm-close{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:2px;background:transparent;color:var(--pb-muted);flex-shrink:0}
+.pb-confirm .pb-confirm-close:hover{background:var(--pb-soft);color:var(--pb-ink)}
+.pb-confirm-copy{padding:16px 30px 0}
+.pb-confirm-copy h2{font:500 30px/1.18 'Space Grotesk',sans-serif;letter-spacing:-.055em;overflow-wrap:anywhere}
+.pb-confirm-copy p{color:var(--pb-muted);margin-top:12px;max-width:385px;font-size:14px;line-height:1.7;overflow-wrap:anywhere}
+.pb-confirm-record{display:flex;align-items:center;gap:12px;margin:22px 30px 26px;padding:15px 0;border-block:1px solid var(--pb-line)}
+.pb-confirm-record-icon{display:grid;place-items:center;color:var(--pb-accent);width:34px;height:38px;background:var(--pb-soft);flex-shrink:0}
+.pb-confirm-record>div{min-width:0}
+.pb-confirm-record-name{display:block;font-size:13px;font-weight:500;overflow-wrap:anywhere}
+.pb-confirm-record-meta{display:block;color:var(--pb-muted);font-size:11px;margin-top:2px;overflow-wrap:anywhere}
+.pb-confirm-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;padding:0 30px 28px}
+.pb-confirm .pb-confirm-action{min-height:43px;padding:11px 17px;border:1px solid var(--pb-line);border-radius:2px;font:500 12px/1.4 'DM Sans',sans-serif;text-align:center;overflow-wrap:anywhere}
+.pb-confirm .pb-confirm-secondary{background:transparent;color:var(--pb-muted)}
+.pb-confirm .pb-confirm-secondary:hover{background:var(--pb-soft);border-color:var(--pb-muted)}
+.pb-confirm .pb-confirm-primary{background:#0067e8;border-color:#0067e8;color:#fff}
+.pb-confirm .pb-confirm-primary:hover{background:#0055bd;border-color:#0055bd}
+.pb-confirm .pb-confirm-delete{background:#b3261e;border-color:#b3261e;color:#fff}
+.pb-confirm .pb-confirm-delete:hover{background:#982019;border-color:#982019}
+html[data-theme='dark'] .pb-confirm{box-shadow:0 12px 36px #0006}
+html[data-theme='dark'] .pb-confirm .pb-confirm-delete{background:#ffb4ab;border-color:#ffb4ab;color:#39100c}
+html[data-theme='dark'] .pb-confirm .pb-confirm-delete:hover{background:#ffc6be;border-color:#ffc6be}
+@media(max-width:480px){.pb-confirm-top{padding:16px 20px 0}.pb-confirm-copy{padding:15px 20px 0}.pb-confirm-copy h2{font-size:27px}.pb-confirm-copy p{font-size:13px}.pb-confirm-record{margin:20px 20px 22px}.pb-confirm-actions{padding:0 20px 22px;display:grid;grid-template-columns:1fr;gap:8px}.pb-confirm .pb-confirm-primary,.pb-confirm .pb-confirm-delete{grid-row:1}.pb-confirm .pb-confirm-action{width:100%;min-height:44px}}
+@media(pointer:coarse){.pb-confirm .pb-confirm-close{width:44px;height:44px}.pb-confirm .pb-confirm-action{min-height:44px}}
