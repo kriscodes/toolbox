@@ -1,12 +1,12 @@
 # Toolbox — Kristian Salmeron
 
-Toolbox is the practical developer-utilities part of Kristian's independent Portfolio, Toolbox, and Engineering Lab ecosystem. This repository keeps its existing Vite and TypeScript architecture and Render publish directory. The current design uses Pine & mint colors, Space Grotesk and DM Sans, a geometric stamp, horizontal navigation, and a flat layout.
+Toolbox is the practical developer-utilities part of Kristian's independent Portfolio, Toolbox, and Engineering Lab ecosystem. This repository keeps its existing Vite and TypeScript architecture and Render publish directory. The current design uses a white and blue palette, Space Grotesk and DM Sans, a geometric stamp, horizontal navigation, and a flat layout.
 
 The public application includes Prompt Builder, a reusable AI prompt workbench with project context and a browser-local library. Family Map and Home Cameras remain archived. New utilities should be listed only when they work.
 
 [![Check](https://github.com/kriscodes/toolbox/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/kriscodes/toolbox/actions/workflows/check.yml)
 
-![Toolbox homepage — Pine & mint design](docs/previews/toolbox-desktop.jpg)
+The [original redesign preview](docs/previews/toolbox-desktop.jpg) records the earlier color palette.
 
 ## Repository boundaries
 

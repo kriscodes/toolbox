@@ -112,6 +112,7 @@ export function PromptBuilder(): ReactNode {
   const [busy, setBusy] = useState(false);
   const [accessKey, setAccessKey] = useState('');
   const [accessOpen, setAccessOpen] = useState(false);
+  const [dark, setDark] = useState(document.documentElement.dataset.theme === 'dark');
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [showSaved, setShowSaved] = useState(false);
   const libraryRef = useRef(library);
@@ -127,6 +128,29 @@ export function PromptBuilder(): ReactNode {
   const savingPaused = Boolean(storageError) || storageBlocked;
   // Mutation feedback must not imply that an in-memory change was persisted successfully.
   const visibleNotice = savingPaused && /^(?:Saved to |Copy saved to |Group context saved\.|Prompt deleted\.|Group deleted\.|Backup imported as new copies\.|A fresh library is ready\.)/u.test(notice) ? '' : notice;
+
+  /** Synchronize the shared Toolbox appearance without touching the prompt library. */
+  function observeAppearance(): () => void {
+    /** Follow appearance preferences changed in another tab. */
+    function onAppearance(event: StorageEvent): void {
+      if (event.key === 'toolbox.theme.v1' || event.key === null) setDark(event.newValue === 'dark');
+    }
+    window.addEventListener('storage', onAppearance);
+    return function stopObservingAppearance(): void { window.removeEventListener('storage', onAppearance); };
+  }
+  useEffect(observeAppearance, []);
+
+  /** Keep the appearance choice shared with the Toolbox homepage when storage is available. */
+  function toggleAppearance(): void {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.dataset.theme = next ? 'dark' : 'light';
+    try { localStorage.setItem('toolbox.theme.v1', next ? 'dark' : 'light'); } catch { /* Appearance remains available for this visit. */ }
+  }
+
+  /** Apply appearance changes made in another Toolbox tab. */
+  function applyAppearance(): void { document.documentElement.dataset.theme = dark ? 'dark' : 'light'; }
+  useEffect(applyAppearance, [dark]);
 
   /** Keep file-import completion pointed at the newest editor state after its asynchronous read. */
   function rememberCurrentLibrary(): void { libraryRef.current = library; }
@@ -366,7 +390,8 @@ export function PromptBuilder(): ReactNode {
 
   return <div className="pb-app">
     <a className="pb-skip" href="#pb-idea">Skip to prompt editor</a>
-    <header className="pb-top"><a className="pb-brand" href="/"><Icon name="box" /><span>toolbox</span></a><span className="pb-divider" /><h1>Prompt Builder</h1><button className="pb-access" type="button" onClick={showAccess} disabled={busy}><Icon name="lock" /><span>{accessKey ? 'AI unlocked' : 'Unlock AI'}</span></button></header>
+    <header className="pb-top"><a className="pb-maker" href="https://kristiansalmeron.com/"><strong>KS</strong><span className="pb-maker-divider" />Kristian Salmeron</a><nav className="pb-top-nav" aria-label="Main navigation"><a href="/">Toolbox <span aria-hidden="true">↗</span></a><a href="https://kristiansalmeron.com/">Portfolio <span aria-hidden="true">↗</span></a><button className="pb-theme" type="button" aria-label="Dark appearance" aria-pressed={dark} onClick={toggleAppearance}>{dark ? '☀' : '◐'}</button></nav></header>
+    <div className="pb-intro"><div><p className="pb-kicker"><a href="/">TOOLBOX</a><span aria-hidden="true"> / </span> PROMPT BUILDER</p><h1>Prompt builder<span aria-hidden="true">✳</span></h1><p className="pb-intro-copy">Turn an idea into a useful prompt, with the context that makes it yours.</p></div><button className="pb-access" type="button" onClick={showAccess} disabled={busy}><Icon name="lock" /><span>{accessKey ? 'AI unlocked' : 'Unlock AI'}</span></button></div>
     <div className="pb-shell">
       <aside className="pb-sidebar" aria-label="Prompt library">
         <button type="button" className="pb-new" onClick={newPrompt} disabled={busy || storageBlocked}><Icon name="plus" />New prompt</button>

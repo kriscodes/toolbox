@@ -92,7 +92,7 @@ All workspaces share one npm lockfile. The browser build produces root `dist/`, 
 
 ## Artwork and architecture records
 
-The current dashboard uses Pine & mint styling; the restored editor retains its original warm charcoal design and self-hosted Manrope. AI-generated pencil sketches and generation notes are retained in [`artwork/source/`](../artwork/source/). Optimized WebP images and the font are committed under [`apps/toolbox/public/`](../apps/toolbox/public/), including the [font license](../apps/toolbox/public/fonts/OFL.txt). Regenerate assets with `npm run assets`.
+The dashboard and Prompt Builder share a white and blue palette and self-hosted Space Grotesk and DM Sans typefaces. AI-generated pencil sketches and generation notes are retained in [`artwork/source/`](../artwork/source/). Optimized WebP images and the font are committed under [`apps/toolbox/public/`](../apps/toolbox/public/), including the [font license](../apps/toolbox/public/fonts/OFL.txt). Regenerate assets with `npm run assets`.
 
 Architecture decision records:
 

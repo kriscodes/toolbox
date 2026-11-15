@@ -57,7 +57,7 @@ function createPage(storage) {
     click() { for (const listener of clickListeners) listener(); },
   };
   const status = { textContent: '' };
-  const themeColor = { content: '#eef3e8' };
+  const themeColor = { content: '#ffffff' };
   const document = {
     documentElement: { dataset: { theme: 'light' } },
     querySelector(selector) {
@@ -116,7 +116,7 @@ function createSession(t) {
 function assertAppearance(page, theme) {
   assert.equal(page.document.documentElement.dataset.theme, theme);
   assert.equal(page.button.getAttribute('aria-pressed'), String(theme === 'dark'));
-  assert.equal(page.themeColor.content, theme === 'dark' ? '#13251d' : '#eef3e8');
+  assert.equal(page.themeColor.content, theme === 'dark' ? '#101d2c' : '#ffffff');
   assert.equal(page.button.hidden, false);
 }
 
@@ -147,7 +147,7 @@ test('saved dark appearance is applied by the delivered head script before contr
   const storage = createStorage([[THEME_STORAGE_KEY, 'dark']]);
   const page = session.open(storage, false);
   assert.equal(page.document.documentElement.dataset.theme, 'dark');
-  assert.equal(page.themeColor.content, '#13251d');
+  assert.equal(page.themeColor.content, '#101d2c');
   assert.equal(page.button.hidden, true, 'The head script does not pretend that the controls are initialized.');
   assert.equal(page.status.textContent, '');
   initializeAppearance();

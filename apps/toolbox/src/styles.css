@@ -12,24 +12,24 @@
   font-weight: 400 500;
   font-display: swap;
 }
-:root { color-scheme: light; background: #eef3e8; }
-:root[data-theme='dark'] { color-scheme: dark; background: #13251d; }
+:root { color-scheme: light; background: #ffffff; }
+:root[data-theme='dark'] { color-scheme: dark; background: #101d2c; }
 body { margin: 0; min-width: 320px; }
 a, button, summary { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 button, summary { cursor: pointer; }
-a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid light-dark(#216b4c, #b7e47d); outline-offset: 5px; }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid light-dark(#0067e8, #8bbdff); outline-offset: 5px; }
 main:focus { outline: none; }
 [hidden] { display: none !important; }
-.skip-link { position: fixed; top: 12px; left: 16px; z-index: 10; transform: translateY(-160%); padding: 12px 18px; background: light-dark(#193c30, #e6f3db); color: light-dark(#eef3e8, #13251d); }
+.skip-link { position: fixed; top: 12px; left: 16px; z-index: 10; transform: translateY(-160%); padding: 12px 18px; background: light-dark(#172b45, #edf4ff); color: light-dark(#ffffff, #101d2c); }
 .skip-link:focus { transform: translateY(0); }
 #toolbox {
     max-width: 1440px;
     margin-inline: auto;
-    --toolbox-paper: light-dark(#eef3e8, #13251d);
-    --toolbox-ink: light-dark(#193c30, #e6f3db);
-    --toolbox-muted: light-dark(#526b5e, #abbeab);
-    --toolbox-hairline: light-dark(#cedacc, #3a5141);
-    --toolbox-accent: light-dark(#216b4c, #b7e47d);
+    --toolbox-paper: light-dark(#ffffff, #101d2c);
+    --toolbox-ink: light-dark(#172b45, #edf4ff);
+    --toolbox-muted: light-dark(#52677e, #a9bbcd);
+    --toolbox-hairline: light-dark(#dbe4ef, #34485e);
+    --toolbox-accent: light-dark(#0067e8, #8bbdff);
     --toolbox-signal: var(--toolbox-accent);
     width: 100%;
     min-height: 650px;

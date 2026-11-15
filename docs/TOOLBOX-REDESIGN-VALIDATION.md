@@ -1,5 +1,7 @@
 # Toolbox redesign validation
 
+> Historical record: this describes the November 2026 redesign at the time it was reviewed, before Prompt Builder was restored and the palette changed to white and blue.
+
 Review date: November 8, 2026. Archive base: `c13d02dda8d596b0e4616f3bbc4eaa7ff44e591c`. Upstream documentation reconciled through `adbc128`.
 
 ## Resulting behavior
