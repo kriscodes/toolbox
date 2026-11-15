@@ -3,7 +3,9 @@ import { dirname, extname, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const DEFAULT_ORIGIN = 'https://toolbox.kristiansalmeron.com/';
-const RETIRED_CONTENT = /prompt[\s_-]*builder|family[\s_-]*map|home[\s_-]*cameras|toolbox\.pinned-projects\.v1|toolbox\.prompt-builder\.library\.v1|toolbox-prompt-api|OPENAI_API_KEY|PROMPT_BUILDER_ACCESS_KEY|VITE_PROMPT_API_URL|api\.openai\.com|\/api\/(?:generate|health)/iu;
+const RETIRED_PATH = /family[\s_-]*map|home[\s_-]*cameras/iu;
+const RETIRED_CONTENT = /toolbox\.pinned-projects\.v1|OPENAI_API_KEY|PROMPT_BUILDER_ACCESS_KEY|api\.openai\.com/iu;
+const PUBLIC_HTML = new Set(['index.html', 'tools/prompt-builder/index.html']);
 const TEXT_EXTENSIONS = new Set(['.html', '.js', '.mjs', '.css', '.json', '.svg', '.xml', '.txt', '.map']);
 
 /** Decode the entities that may occur in generated metadata and resource attributes. */
@@ -61,11 +63,11 @@ export async function auditPublicBuild({ directory, origin = DEFAULT_ORIGIN }) {
   const references = new Set();
   for (const path of files) {
     const name = relative(root, path).split(sep).join('/');
-    if (/(?:^|\/)archive(?:\/|$)|(?:^|\/)artwork(?:\/|$)/iu.test(name) || RETIRED_CONTENT.test(name)) {
+    if (/(?:^|\/)archive(?:\/|$)|(?:^|\/)artwork(?:\/|$)/iu.test(name) || RETIRED_PATH.test(name)) {
       errors.push(`${name}: archived project material must not be published`);
     }
-    if (extname(name).toLowerCase() === '.html' && name !== 'index.html') {
-      errors.push(`${name}: the current release must publish only the Toolbox homepage`);
+    if (extname(name).toLowerCase() === '.html' && !PUBLIC_HTML.has(name)) {
+      errors.push(`${name}: unexpected public HTML entry`);
     }
     if (!TEXT_EXTENSIONS.has(extname(name).toLowerCase())) continue;
     const content = await readFile(path, 'utf8');
@@ -143,6 +145,21 @@ export async function auditPublicBuild({ directory, origin = DEFAULT_ORIGIN }) {
       }
       if (attributes.srcset && !attributes.srcset.startsWith('data:')) {
         for (const item of attributes.srcset.split(',')) verifyReference(item.trim().split(/\s+/u)[0], 'index.html');
+      }
+    }
+  }
+
+  const promptPage = texts.get('tools/prompt-builder/index.html');
+  if (!promptPage) errors.push('tools/prompt-builder/index.html: Prompt Builder entry is missing');
+  else {
+    const tags = parseTags(promptPage);
+    if (!tags.some((tag) => tag.name === 'script' && tag.attributes.type === 'module' && tag.attributes.src)) {
+      errors.push('tools/prompt-builder/index.html: application entry script is missing');
+    }
+    for (const tag of tags) {
+      if (tag.attributes.src) verifyReference(tag.attributes.src, 'tools/prompt-builder/index.html');
+      if (tag.name === 'link' && /(?:^|\s)(?:stylesheet|icon|preload|modulepreload)(?:\s|$)/iu.test(tag.attributes.rel ?? '')) {
+        verifyReference(tag.attributes.href, 'tools/prompt-builder/index.html');
       }
     }
   }

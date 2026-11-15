@@ -2,7 +2,7 @@
 
 Toolbox is the practical developer-utilities part of Kristian's independent Portfolio, Toolbox, and Engineering Lab ecosystem. This repository keeps its existing Vite and TypeScript architecture and Render publish directory. The current design uses Pine & mint colors, Space Grotesk and DM Sans, a geometric stamp, horizontal navigation, and a flat layout.
 
-The public application currently publishes only the Toolbox landing page. Prompt Builder, Family Map, and Home Cameras are archived and do not appear in its navigation, catalog, or public build. New utilities should be listed only when they work; the homepage does not fill categories with planned projects.
+The public application includes Prompt Builder, a reusable AI prompt workbench with project context and a browser-local library. Family Map and Home Cameras remain archived. New utilities should be listed only when they work.
 
 [![Check](https://github.com/kriscodes/toolbox/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/kriscodes/toolbox/actions/workflows/check.yml)
 
@@ -12,11 +12,11 @@ The public application currently publishes only the Toolbox landing page. Prompt
 
 | Location | Responsibility |
 | --- | --- |
-| `apps/toolbox` | Public Vite application, assets, and one HTML entry |
+| `apps/toolbox` | Public Vite application, assets, and browser entry points |
 | `archive/2026-11-toolbox` | Preserved earlier workbench, catalog, entry pages, artwork, and local archive configuration |
-| `tools/prompt-builder` | Retained archived React editor and browser library |
-| `apps/prompt-api` | Retained archived Node AI gateway |
-| `packages/prompt-contracts` | Retained prompt model catalog, validation, and types |
+| `tools/prompt-builder` | React prompt editor and browser library |
+| `apps/prompt-api` | Node AI generation gateway |
+| `packages/prompt-contracts` | Shared prompt model catalog, validation, and types |
 
 All workspaces continue to use one npm lockfile. Portfolio, Toolbox, and Engineering Lab have independent repositories and release lifecycles. There is no shared runtime dependency between these websites.
 
@@ -29,7 +29,7 @@ npm ci
 npm run dev
 ```
 
-The current public application does not require an API key, server, database, or authentication. Its build output remains root `dist/`.
+The prompt editor and its local library work without an API key or server. AI generation requires the separately configured prompt API and a private workbench access key. The frontend build output remains root `dist/`.
 
 ```sh
 npm run verify
@@ -45,7 +45,7 @@ Repository conventions continue to require consistent TypeScript imports and pur
 
 ## Archived projects and data
 
-See [the archive guide](archive/2026-11-toolbox/README.md) for local inspection, optional archive builds, original source locations, and browser-library recovery constraints. The [original README](archive/2026-11-toolbox/ORIGINAL-README.md) retains prior setup and operational details. The separately maintained [operations guide](docs/operations.md) is preserved for the archived application, and [the upstream overview](archive/2026-11-toolbox/UPSTREAM-OVERVIEW.md) records its previous public presentation.
+See [the archive guide](archive/2026-11-toolbox/README.md) for local inspection, optional archive builds, original source locations, and browser-library recovery constraints. The [original README](archive/2026-11-toolbox/ORIGINAL-README.md) retains prior setup and operational details. The [operations guide](docs/operations.md) covers the restored editor and API, and [the upstream overview](archive/2026-11-toolbox/UPSTREAM-OVERVIEW.md) records its previous public presentation.
 
 ```sh
 npm run dev:archive
@@ -53,14 +53,14 @@ npm run test:archive
 npm run build:archive
 ```
 
-The optional archive runs on `127.0.0.1:4175` and builds into its own ignored directory. It has no public route in the normal build. The historical sketches and Manrope font are stored only in the archive; `npm run assets` regenerates those archive assets and does not repopulate the public directory.
+The optional archive runs on `127.0.0.1:4175` and builds into its own ignored directory. The current public Prompt Builder uses the retained editor, not the archived dashboard. The historical sketches remain in the archive; the restored editor also uses a public copy of the Manrope font; `npm run assets` regenerates those archive assets and does not repopulate the public directory.
 
 No personal library data is migrated, deleted, or uploaded. The original local-storage schema and keys remain unchanged in the retained editor. A local archive is a different browser origin and cannot automatically access existing production-origin libraries; use an exported backup or a deliberate approved same-origin recovery procedure.
 
 ## Deployment
 
-The existing public Render configuration remains a repository-root build with `npm ci && npm run build`, publishing `dist`. This change preserves that contract and does not reconfigure a running service. The default browser build emits only the public homepage; it does not emit `/tools/prompt-builder/` or copy archived source/assets.
+The existing public Render configuration remains a repository-root build with `npm ci && npm run build`, publishing `dist`. This change preserves that contract and does not reconfigure a running service. The browser build emits the homepage and `/tools/prompt-builder/` without copying the archived dashboard or assets.
 
-The existing Prompt API source and service settings are preserved, but the new public homepage does not use that API. Do not remove production credentials, stop services, change DNS, or deploy archive output as part of a frontend-only update. Retirement or public restoration of an archived service is a separate decision.
+The restored editor uses the existing Prompt API service for authenticated generation; see the [operations guide](docs/operations.md) for configuration. Do not remove production credentials, stop services, change DNS, or deploy archive output as part of a frontend-only update. The existing Prompt API continues to use its current service configuration.
 
-Before any approved release, run verification, inspect the generated output for excluded archive routes/assets, and validate the deployed homepage, crawler files, metadata, keyboard navigation, and mobile layout. A successful build alone does not verify the live website.
+Before release, run verification, inspect the generated output for excluded archive routes/assets, and validate the deployed homepage, prompt editor, crawler files, keyboard navigation, and mobile layout. A successful build alone does not verify the live website.

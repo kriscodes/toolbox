@@ -76,6 +76,11 @@ main:focus { outline: none; }
   #toolbox .toolbox-margin-label { color: var(--toolbox-muted); font-size: 11px; letter-spacing: .6px; }
   #toolbox .toolbox-publication-line { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 9px; row-gap: 3px; font-size: 13px; }
   #toolbox .toolbox-publication-line span { color: var(--toolbox-muted); }
+  #toolbox .toolbox-tool { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  #toolbox .toolbox-tool h2 { font: 500 21px/1.3 'Space Grotesk', sans-serif; letter-spacing: -.4px; }
+  #toolbox .toolbox-tool h2 span { color: var(--toolbox-accent); font-size: 15px; }
+  #toolbox .toolbox-tool p { margin-top: 7px; color: var(--toolbox-muted); font-size: 13px; }
+  #toolbox .toolbox-tool-open { flex: 0 0 auto; color: var(--toolbox-accent); font-size: 12px; }
   #toolbox .toolbox-about { border-top: 1px solid var(--toolbox-hairline); margin-bottom: 36px; }
   #toolbox .toolbox-about summary { display: grid; grid-template-columns: 128px minmax(0, 1fr) 20px; align-items: center; gap: 20px; padding: 22px 0; list-style: none; width: 100%; }
   #toolbox .toolbox-about summary::-webkit-details-marker { display: none; }
@@ -115,6 +120,7 @@ main:focus { outline: none; }
     #toolbox .toolbox-publication { grid-template-columns: 1fr; gap: 7px; margin-top: 28px; padding-block: 20px; }
     #toolbox .toolbox-publication-line { display: block; font-size: 12px; }
     #toolbox .toolbox-publication-line span { margin-left: 4px; }
+    #toolbox .toolbox-tool { align-items: flex-start; flex-direction: column; gap: 12px; }
     #toolbox .toolbox-margin-label { font-size: 11px; }
     #toolbox .toolbox-about { margin-bottom: 29px; }
     #toolbox .toolbox-about summary { grid-template-columns: minmax(0, 1fr) 18px; gap: 14px; padding-block: 20px; }

@@ -234,7 +234,8 @@ export function PromptBuilder(): ReactNode {
     // Include time for a sleeping free backend to wake up, while still giving requests a finite lifetime.
     const timeout = window.setTimeout(function expireRequest() { controller.abort(new Error('timeout')); }, 120_000);
     try {
-      const response = await requestPrompt(generationRequest(library), accessKey, controller.signal, import.meta.env.VITE_PROMPT_API_URL ?? '');
+      const apiUrl = import.meta.env.VITE_PROMPT_API_URL || (import.meta.env.PROD ? 'https://toolbox-prompt-api.onrender.com' : '');
+      const response = await requestPrompt(generationRequest(library), accessKey, controller.signal, apiUrl);
       if (controller.signal.aborted) return;
       patchDraft({ prompt: response.prompt, generatedModelId: response.modelId });
       setNotice('Prompt ready. Edit it, copy it, or save it to this group.');

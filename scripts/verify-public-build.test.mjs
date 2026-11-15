@@ -28,6 +28,8 @@ async function fixture(t, changes = {}) {
     'assets/home.css': '@font-face{font-family:Test;src:url("../fonts/test.woff2")}body{color:#222}',
     'assets/home.js': 'import"./theme.js";',
     'assets/theme.js': 'localStorage.setItem("toolbox.theme.v1","light");',
+    'tools/prompt-builder/index.html': '<!doctype html><html><head><title>Prompt Builder</title></head><body><script type="module" src="/assets/prompt.js"></script></body></html>',
+    'assets/prompt.js': 'localStorage.setItem("toolbox.prompt-builder.library.v1", "{}");',
     'fonts/test.woff2': 'fixture font',
     'favicon.svg': '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
     'social-preview.png': 'fixture image',
@@ -47,7 +49,7 @@ async function fixture(t, changes = {}) {
 test('accepts a complete public homepage and follows CSS font URLs relative to the stylesheet', async (t) => {
   const result = await auditPublicBuild({ directory: await fixture(t) });
   assert.deepEqual(result.errors, []);
-  assert.equal(result.referenceCount, 6);
+  assert.equal(result.referenceCount, 7);
 });
 
 test('detects missing nested resources and social preview files', async (t) => {
@@ -60,7 +62,7 @@ test('detects missing nested resources and social preview files', async (t) => {
 test('rejects retired output even when it is unlinked or bundled under an opaque filename', async (t) => {
   const result = await auditPublicBuild({ directory: await fixture(t, {
     'tools/retired/index.html': '<h1>Old entry point</h1>',
-    'assets/opaque.js': 'const key="toolbox.prompt-builder.library.v1";',
+    'assets/opaque.js': 'const key="toolbox.pinned-projects.v1";',
     'artwork/old.webp': 'old image',
     'archive/source.txt': 'source snapshot',
   }) });

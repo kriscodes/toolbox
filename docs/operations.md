@@ -1,6 +1,6 @@
 # Toolbox operations and maintenance
 
-> Historical operations for the archived Prompt Builder and earlier dashboard. The current public homepage has no generation or project routes. Use [the archive guide](../archive/2026-11-toolbox/README.md) for its separate local configuration; these deployment instructions do not authorize changing any running service.
+> Prompt Builder is available from the current Toolbox homepage. The earlier dashboard and other projects remain archived; see [the archive guide](../archive/2026-11-toolbox/README.md) for historical material.
 
 This guide keeps deployment, configuration, and maintenance details separate from the [project overview](../README.md). Unless a link says otherwise, file paths and shell commands are relative to the repository root.
 
@@ -51,7 +51,7 @@ The existing deployment handoff identifies the static site as `kristian-toolbox`
 
 The API service is `toolbox-prompt-api` (`srv-dbkob5tg1s2s73db1ms0`) at `https://toolbox-prompt-api.onrender.com`. Its health check is configured as `/api/health`. The handoff records the static site's public API URL as connected; verify the private keys in the [API environment settings](https://dashboard.render.com/web/srv-dbkob5tg1s2s73db1ms0/env) before relying on generation.
 
-On the static site, set `VITE_PROMPT_API_URL` to the API's HTTPS origin, with no path suffix, then rebuild. On the API service, configure the two server secrets and set `ALLOWED_ORIGINS=https://toolbox.kristiansalmeron.com`. Add another origin only when that exact browser address should be allowed. Leave Render's supplied `PORT` in place; the server binds to `0.0.0.0`.
+Production defaults to the API's HTTPS origin. To use a different API, set `VITE_PROMPT_API_URL` on the static site to its HTTPS origin, with no path suffix, then rebuild. On the API service, configure the two server secrets and set `ALLOWED_ORIGINS=https://toolbox.kristiansalmeron.com`. Add another origin only when that exact browser address should be allowed. Leave Render's supplied `PORT` in place; the server binds to `0.0.0.0`.
 
 The API can use a free web service because it does not persist data. A free instance may sleep when idle, making its next request slower. `/api/health` checks the process and reports whether credentials are configured; it does not call OpenAI or verify provider billing/model access. After both services deploy, check the page, refresh its nested URL, and make an authorized generation with each model. Deployment should not be considered complete merely because a deploy request was accepted.
 
@@ -92,7 +92,7 @@ All workspaces share one npm lockfile. The browser build produces root `dist/`, 
 
 ## Artwork and architecture records
 
-The dashboard's visual system uses warm charcoal, pencil sketches, and self-hosted Manrope. AI-generated pencil sketches and generation notes are retained in [`artwork/source/`](../artwork/source/). Optimized WebP images and the font are committed under [`apps/toolbox/public/`](../apps/toolbox/public/), including the [font license](../apps/toolbox/public/fonts/OFL.txt). Regenerate assets with `npm run assets`.
+The current dashboard uses Pine & mint styling; the restored editor retains its original warm charcoal design and self-hosted Manrope. AI-generated pencil sketches and generation notes are retained in [`artwork/source/`](../artwork/source/). Optimized WebP images and the font are committed under [`apps/toolbox/public/`](../apps/toolbox/public/), including the [font license](../apps/toolbox/public/fonts/OFL.txt). Regenerate assets with `npm run assets`.
 
 Architecture decision records:
 
