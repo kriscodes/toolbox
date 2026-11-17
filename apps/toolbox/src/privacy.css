@@ -1,0 +1,8 @@
+#toolbox .toolbox-privacy { max-width: 780px; padding-block: 36px 64px; }
+#toolbox .toolbox-privacy h1 { margin-block: 14px 24px; font: 500 clamp(32px, 6vw, 54px)/1.1 'Space Grotesk', sans-serif; letter-spacing: -.04em; }
+#toolbox .toolbox-privacy .privacy-lead { font-size: 18px; }
+#toolbox .toolbox-privacy section { border-top: 1px solid var(--toolbox-hairline); margin-top: 32px; padding-top: 24px; }
+#toolbox .toolbox-privacy h2 { font: 500 21px/1.35 'Space Grotesk', sans-serif; margin-bottom: 16px; }
+#toolbox .toolbox-privacy p + p { margin-top: 16px; }
+#toolbox .toolbox-privacy a { color: var(--toolbox-accent); text-decoration: underline; text-underline-offset: 4px; }
+#toolbox .toolbox-privacy > .toolbox-margin-label:last-child { margin-top: 32px; }

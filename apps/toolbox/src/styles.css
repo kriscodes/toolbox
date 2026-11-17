@@ -89,7 +89,7 @@ main:focus { outline: none; }
   #toolbox .toolbox-about[open] summary :is([data-lucide], .lucide) { transform: rotate(45deg); }
   #toolbox .toolbox-about-content { padding: 0 40px 5px 148px; color: var(--toolbox-muted); font-size: 14px; line-height: 1.85; max-width: 800px; }
   #toolbox .toolbox-about-content a { color: var(--toolbox-accent); text-decoration: underline; text-underline-offset: 4px; }
-  #toolbox .toolbox-footer { margin-top: auto; border-top: 1px solid var(--toolbox-hairline); padding: 22px 0 27px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  #toolbox .toolbox-footer { margin-top: auto; border-top: 1px solid var(--toolbox-hairline); padding: 22px 0 27px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; }
   #toolbox .toolbox-footer-signature { display: flex; align-items: center; gap: 10px; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: -.3px; }
   #toolbox .toolbox-footer-signature .toolbox-stamp { font-size: 30px; width: 14px; height: 14px; margin: 0; }
   #toolbox .toolbox-source { display: inline-flex; align-items: center; gap: 8px; color: var(--toolbox-accent); font-size: 12px; }

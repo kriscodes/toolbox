@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const DEFAULT_ORIGIN = 'https://toolbox.kristiansalmeron.com/';
 const RETIRED_PATH = /family[\s_-]*map|home[\s_-]*cameras/iu;
 const RETIRED_CONTENT = /toolbox\.pinned-projects\.v1|OPENAI_API_KEY|PROMPT_BUILDER_ACCESS_KEY|api\.openai\.com/iu;
-const PUBLIC_HTML = new Set(['index.html', 'tools/prompt-builder/index.html']);
+const PUBLIC_HTML = new Set(['index.html', 'tools/prompt-builder/index.html', 'privacy/index.html']);
 const TEXT_EXTENSIONS = new Set(['.html', '.js', '.mjs', '.css', '.json', '.svg', '.xml', '.txt', '.map']);
 
 /** Decode the entities that may occur in generated metadata and resource attributes. */
@@ -161,6 +161,20 @@ export async function auditPublicBuild({ directory, origin = DEFAULT_ORIGIN }) {
       if (tag.name === 'link' && /(?:^|\s)(?:stylesheet|icon|preload|modulepreload)(?:\s|$)/iu.test(tag.attributes.rel ?? '')) {
         verifyReference(tag.attributes.href, 'tools/prompt-builder/index.html');
       }
+    }
+  }
+
+  const privacyPage = texts.get('privacy/index.html');
+  if (!privacyPage) errors.push('privacy/index.html: public privacy notice is missing');
+  else {
+    const tags = parseTags(privacyPage);
+    if (!tags.some((tag) => tag.name === 'main') || !/<h1\b/iu.test(privacyPage)) errors.push('privacy/index.html: readable privacy notice is missing');
+    for (const value of ['analytics_opt_out=1', 'analytics_opt_out=0']) {
+      if (!tags.some((tag) => tag.name === 'a' && tag.attributes.href?.includes(value))) errors.push(`privacy/index.html: ${value} control is missing`);
+    }
+    for (const tag of tags) {
+      if (tag.attributes.src) verifyReference(tag.attributes.src, 'privacy/index.html');
+      if (tag.name === 'link' && /(?:^|\s)(?:stylesheet|icon|preload|modulepreload)(?:\s|$)/iu.test(tag.attributes.rel ?? '')) verifyReference(tag.attributes.href, 'privacy/index.html');
     }
   }
 
