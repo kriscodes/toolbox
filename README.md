@@ -13,7 +13,7 @@ npm ci
 npm run dev
 ```
 
-Open the URL printed by Vite. Editing and saving prompts work without a server. AI generation requires the [Prompt API setup](docs/DEPLOYMENT.md#local-api-setup) and a private workbench access key.
+Open the URL printed by Vite. The free template builder formats an idea, optional project context, and selected options into an editable prompt entirely in the browser. Building, editing, and saving free prompts require no account, access key, or API. Optional private AI generation rewrites the idea using a model and requires the [Prompt API setup](docs/DEPLOYMENT.md#local-api-setup) and a private workbench access key.
 
 ```sh
 npm run verify
