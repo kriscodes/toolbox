@@ -10,6 +10,12 @@ The editor separates [library transformations and validation](../tools/prompt-bu
 
 The library has no server synchronization. Export a backup before clearing browser data or moving to another browser. The appearance preference uses a separate key, `toolbox.theme.v1`.
 
+## Free template generation
+
+The default mode builds a prompt in the browser using [a local template builder](../tools/prompt-builder/src/free-generator.ts). It preserves the idea and included context, adds the selected tone and task category, and formats the result as structured text, concise text, or a checklist. This is template formatting, not an AI rewrite. It makes no network requests and requires no access key. Free output uses `generatedModelId: null`; the existing library schema and backups remain compatible.
+
+Visitors can explicitly select private AI when they have a workbench access key. The mode defaults to free on each page visit, and locking private AI returns to free mode.
+
 ## Generation API
 
 `apps/prompt-api` exposes `GET /api/health` and `POST /api/generate`. The browser sends the current idea, selected options, and optional group context. The rest of the library stays local. `packages/prompt-contracts` provides the shared model allowlist and input validation.
@@ -22,7 +28,7 @@ The [provider adapter](../apps/prompt-api/src/generator.ts) makes one Responses 
 
 All three pages load the optional tracker from `analytics.kristiansalmeron.com`, with site ID `toolbox`. The collector, tracker implementation, PostgreSQL storage, and authenticated reports live in [Portfolio](https://github.com/kriscodes/portfolio). A blocked or failed tracker does not prevent using Toolbox.
 
-Toolbox emits one fixed `tool_action` event when a validated generation is attempted. It contains only `content: prompt-builder` and `action: generate`; it cannot establish whether generation succeeded. Prompt text, generated output, context, names, and access keys are never supplied to analytics. The tracker handles page and link activity; Toolbox does not implement a second pageview collector.
+Toolbox emits one fixed `tool_action` event when private AI generation is attempted. It contains only `content: prompt-builder` and `action: generate`; it cannot establish whether generation succeeded. Free template generation emits no generation event. Prompt text, generated output, context, names, and access keys are never supplied to analytics. The tracker handles page and link activity; Toolbox does not implement a second pageview collector.
 
 The [privacy page](../apps/toolbox/privacy/index.html) describes collection and provides opt-out controls. The shared tracker honors Global Privacy Control and Do Not Track. Links among Portfolio, Lab, and Toolbox share only the source origin for referral attribution.
 

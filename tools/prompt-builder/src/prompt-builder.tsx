@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode, type SyntheticEvent } from 'react';
 import { MAX_CONTEXT_LENGTH, MAX_IDEA_LENGTH, MAX_PROMPT_LENGTH, MODELS, TASKS, type GenerationRequest } from '@toolbox/prompt-contracts';
 import { PromptApiError, requestPrompt } from './client';
+import { buildFreePrompt } from './free-generator';
 import { trackGenerationAttempt } from './analytics';
 import { ConfirmationDialog, type ConfirmationOptions } from './confirmation';
 import { createConfirmationRequest } from './confirmation-request';
@@ -103,9 +104,9 @@ function AccessEditor({ unlocked, onUnlock, onLock, onClose }: {
   function changeKey(event: ChangeEvent<HTMLInputElement>): void { setKey(event.target.value); }
   /** Pass the trimmed private workbench key to the parent without writing browser storage. */
   function unlock(event: FormEvent<HTMLFormElement>): void { event.preventDefault(); onUnlock(key.trim()); onClose(); }
-  return <Modal title={unlocked ? 'AI access' : 'Unlock AI generation'} onClose={onClose}>
+  return <Modal title={unlocked ? 'Private AI access' : 'Unlock private AI'} onClose={onClose}>
     {unlocked ? <><p className="pb-help">AI generation is unlocked for this visit.</p><button type="button" className="pb-secondary pb-wide" onClick={onLock}>Lock AI generation</button></> :
-      <form onSubmit={unlock}><label className="pb-field"><span>Workbench access key</span><input className="pb-input" type="password" autoComplete="current-password" value={key} onChange={changeKey} minLength={24} maxLength={256} required autoFocus /></label><p className="pb-help">Use your private Workbench key. This is separate from your OpenAI API key, which stays on the server.</p><button className="pb-primary pb-wide" type="submit">Unlock for this visit</button></form>}
+      <form onSubmit={unlock}><p className="pb-help">The free template builder is available to everyone. Private AI is an optional feature for the workbench owner.</p><label className="pb-field"><span>Workbench access key</span><input className="pb-input" type="password" autoComplete="current-password" value={key} onChange={changeKey} minLength={24} maxLength={256} required autoFocus /></label><p className="pb-help">Use your private Workbench key. This is separate from your OpenAI API key, which stays on the server.</p><button className="pb-primary pb-wide" type="submit">Unlock for this visit</button></form>}
   </Modal>;
 }
 
@@ -119,6 +120,7 @@ export function PromptBuilder(): ReactNode {
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [generationMode, setGenerationMode] = useState<'free' | 'ai'>('free');
   const [accessKey, setAccessKey] = useState('');
   const [accessOpen, setAccessOpen] = useState(false);
   const [dark, setDark] = useState(document.documentElement.dataset.theme === 'dark');
@@ -293,17 +295,29 @@ export function PromptBuilder(): ReactNode {
   /** Change how the prompt builder structures its generated prompt. */
   function changeFormat(event: ChangeEvent<HTMLSelectElement>): void { patchDraft({ format: event.target.value as Draft['format'] }); }
 
-  /** Generate a real prompt once, replacing output only after a complete validated server response. */
+  /** Keep local templates available independently of private AI access. */
+  function changeGenerationMode(event: ChangeEvent<HTMLSelectElement>): void { setGenerationMode(event.target.value as 'free' | 'ai'); setError(''); setNotice(''); }
+
+  /** Build locally by default, or replace output only after a successful private AI response. */
   async function generate(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (busy || storageBlockedRef.current || !draft.idea.trim()) return;
-    if (!accessKey) { setAccessOpen(true); return; }
+    if (generationMode === 'ai' && !accessKey) { setAccessOpen(true); return; }
     if (draft.prompt.trim() && dirty && !await confirmations.ask({
       kicker: 'Unsaved prompt', title: 'Build a new version?',
       description: 'A successful generation will replace your current unsaved prompt. Keep editing if you want to save it first.',
       recordName: draft.name.trim() || 'Untitled prompt', recordMeta: `${group.name} · Unsaved changes`,
       confirmLabel: 'Build new version', cancelLabel: 'Keep editing',
     })) return;
+    if (generationMode === 'free') {
+      try {
+        const prompt = buildFreePrompt(generationRequest(library));
+        patchDraft({ prompt, generatedModelId: null });
+        setError(''); setNotice('Free template ready. Edit it, copy it, or save it to this group.');
+        output.current?.focus();
+      } catch (error) { setError(error instanceof Error ? error.message : 'The free template could not be built.'); setNotice(''); }
+      return;
+    }
     const controller = new AbortController(); request.current = controller;
     setBusy(true); setError(''); setNotice('Building your prompt…');
     // Include time for a sleeping free backend to wake up, while still giving requests a finite lifetime.
@@ -449,9 +463,9 @@ export function PromptBuilder(): ReactNode {
   /** Close the AI access dialog while retaining the current editor. */
   function closeAccess(): void { setAccessOpen(false); }
   /** Keep the separate workbench key only in this mounted page's memory. */
-  function unlockAccess(key: string): void { setAccessKey(key); setNotice('AI unlocked for this visit.'); }
+  function unlockAccess(key: string): void { setAccessKey(key); setGenerationMode('ai'); setNotice('Private AI unlocked for this visit.'); }
   /** Forget the in-memory key immediately when the user locks AI generation. */
-  function lockAccess(): void { setAccessKey(''); setAccessOpen(false); setNotice('AI generation locked.'); }
+  function lockAccess(): void { setAccessKey(''); setGenerationMode('free'); setAccessOpen(false); setNotice('Private AI locked. The free template builder is ready.'); }
 
   /** Render one group button using its stable ID, never its editable name, as the reference. */
   function renderGroup(item: Group): ReactNode {
@@ -471,7 +485,7 @@ export function PromptBuilder(): ReactNode {
   return <div className="pb-app">
     <a className="pb-skip" href="#pb-idea">Skip to prompt editor</a>
     <header className="pb-top"><a className="pb-maker" href="https://kristiansalmeron.com/" referrerPolicy="origin"><strong>KS</strong><span className="pb-maker-divider" />Kristian Salmeron</a><nav className="pb-top-nav" aria-label="Main navigation"><a href="/">Toolbox <span aria-hidden="true">↗</span></a><a href="https://kristiansalmeron.com/" referrerPolicy="origin">Portfolio <span aria-hidden="true">↗</span></a><button className="pb-theme" type="button" aria-label="Dark appearance" aria-pressed={dark} onClick={toggleAppearance}>{dark ? '☀' : '◐'}</button></nav></header>
-    <div className="pb-intro"><div><p className="pb-kicker"><a href="/">TOOLBOX</a><span aria-hidden="true"> / </span> PROMPT BUILDER</p><h1>Prompt builder<span aria-hidden="true">✳</span></h1><p className="pb-intro-copy">Turn an idea into a useful prompt, with the context that makes it yours.</p></div><button className="pb-access" type="button" onClick={showAccess} disabled={busy}><Icon name="lock" /><span>{accessKey ? 'AI unlocked' : 'Unlock AI'}</span></button></div>
+    <div className="pb-intro"><div><p className="pb-kicker"><a href="/">TOOLBOX</a><span aria-hidden="true"> / </span> PROMPT BUILDER</p><h1>Prompt builder<span aria-hidden="true">✳</span></h1><p className="pb-intro-copy">Turn an idea into a useful prompt. The free template builder needs no account or access key.</p></div><button className="pb-access" type="button" onClick={showAccess} disabled={busy}><Icon name="lock" /><span>{accessKey ? 'Private AI unlocked' : 'Private AI access'}</span></button></div>
     <div className="pb-shell">
       <aside className="pb-sidebar" aria-label="Prompt library">
         <button type="button" className="pb-new" onClick={newPrompt} disabled={busy || storageBlocked}><Icon name="plus" />New prompt</button>
@@ -488,8 +502,9 @@ export function PromptBuilder(): ReactNode {
               <label className="pb-field" htmlFor="pb-idea"><span>Your idea</span><textarea id="pb-idea" className="pb-input pb-goal" rows={5} value={draft.idea} onChange={changeIdea} required maxLength={MAX_IDEA_LENGTH} placeholder="What do you want ChatGPT to help you do?" /></label>
               <div className="pb-context"><div className="pb-context-bar"><Icon name="folder" /><span>Project context</span><label className="pb-context-switch"><span>Include context</span><input type="checkbox" checked={draft.includeContext} onChange={toggleContext} /></label></div><p className="pb-context-copy">{group.context || 'Add the background you want every prompt to remember.'}</p><button className="pb-context-edit pb-text-button" type="button" onClick={editCurrentGroup}>{group.context ? 'Edit context' : 'Add context'}</button></div>
               <details className="pb-details"><summary>Fine-tune <span aria-hidden="true">+</span></summary><div className="pb-options"><label className="pb-field"><span>Tone</span><select className="pb-select" value={draft.tone} onChange={changeTone}><option value="clear">Clear</option><option value="friendly">Friendly</option><option value="direct">Direct</option></select></label><label className="pb-field"><span>Prompt format</span><select className="pb-select" value={draft.format} onChange={changeFormat}><option value="structured">Structured</option><option value="concise">Concise</option><option value="checklist">Checklist</option></select></label></div></details>
-              <label className="pb-field pb-model"><span>Generation model</span><select className="pb-select" value={draft.modelId} onChange={changeModel} aria-describedby="pb-model-help">{MODELS.map(renderModel)}</select><small id="pb-model-help">{selectedModel.description}</small></label>
-              <button className="pb-primary pb-generate" type="submit" disabled={!draft.idea.trim()}><Icon name="spark" />{busy ? 'Building prompt…' : 'Build prompt'}</button>
+              <label className="pb-field pb-model"><span>Build with</span><select className="pb-select" value={generationMode} onChange={changeGenerationMode} aria-describedby="pb-mode-help"><option value="free">Free template · no key needed</option><option value="ai">Private AI · access key required</option></select><small id="pb-mode-help">{generationMode === 'free' ? 'Formats your idea and context in this browser. No AI rewrite or generation request.' : 'AI rewrites your idea using the selected model. Requires the owner’s workbench key.'}</small></label>
+              {generationMode === 'ai' && <label className="pb-field pb-model"><span>Generation model</span><select className="pb-select" value={draft.modelId} onChange={changeModel} aria-describedby="pb-model-help">{MODELS.map(renderModel)}</select><small id="pb-model-help">{selectedModel.description}</small></label>}
+              <button className="pb-primary pb-generate" type="submit" disabled={!draft.idea.trim()}><Icon name="spark" />{busy ? 'Building prompt…' : generationMode === 'free' ? 'Build free prompt' : 'Build with private AI'}</button>
             </fieldset>
             {busy ? <button className="pb-secondary pb-wide pb-cancel" type="button" onClick={cancelGeneration}>Cancel generation</button> : <p className="pb-generation-note">A prompt you can take to ChatGPT.</p>}
           </form>
@@ -499,7 +514,7 @@ export function PromptBuilder(): ReactNode {
               <div className="pb-output-footer"><button type="button" className="pb-save" onClick={saveCurrentPrompt} disabled={busy || !draft.prompt.trim() || !draft.name.trim() || storageBlocked}><Icon name="save" />{draft.savedId ? 'Save changes' : 'Save to group'}</button><button type="button" className="pb-copy" onClick={copyPrompt} disabled={!draft.prompt.trim() || busy}><Icon name="copy" />Copy prompt</button></div>
             </div>
             {draft.savedId && <div className="pb-saved-actions"><button className="pb-text-button" type="button" onClick={saveCopy} disabled={busy || storageBlocked || !draft.prompt.trim()}>Save a copy</button><button className="pb-text-button" type="button" onClick={removeCurrentPrompt} disabled={busy || storageBlocked}>Delete prompt</button></div>}
-            <p className="pb-private-note">Only your idea and included context are sent when you build.</p>
+            <p className="pb-private-note">{generationMode === 'free' ? 'Free templates are built here. Your idea and context stay in this browser.' : 'Private AI sends only your idea, included context, and selected options to the generation service.'}</p>
           </section>
         </div>
         <div className="pb-feedback" aria-live="polite" role="status">{visibleNotice}</div>{error && <p className="pb-error" role="alert">{error}</p>}

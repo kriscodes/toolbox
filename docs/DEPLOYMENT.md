@@ -2,6 +2,8 @@
 
 Run commands from the repository root using the version in [`.node-version`](../.node-version). Render settings are maintained on the services; this repository does not contain a Render Blueprint.
 
+The static site includes a free browser template builder that works without API configuration or credentials. It formats the visitor's idea and context locally. The API setup below is only for the optional private AI mode.
+
 ## Local API setup
 
 ```sh
@@ -43,7 +45,7 @@ The build emits all three public routes as HTML files, so a catch-all rewrite is
 
 ## Verification and maintenance
 
-Before deploying, run `npm run verify`. After deployment, open the homepage, refresh `/tools/prompt-builder/` and `/privacy/`, and check keyboard navigation and mobile layout. Confirm that saving, exporting, and importing synthetic prompts work without the API. Check privacy controls with tracking both enabled and blocked.
+Before deploying, run `npm run verify`. After deployment, open the homepage, refresh `/tools/prompt-builder/` and `/privacy/`, and check keyboard navigation and mobile layout. Confirm that a visitor can build a free prompt without a key or API request, toggle included context, and save, export, and import synthetic prompts. Check that private AI remains key-protected and that privacy controls work with tracking both enabled and blocked.
 
 `GET /api/health` reports process health and whether credentials are present. It does not verify provider access or billing. When verifying generation, use synthetic content and the workbench key; a real request consumes provider usage. Check each model currently listed in [the shared catalog](../packages/prompt-contracts/src/index.ts). Rotate the workbench key on the API service if it is exposed; it grants generation access, not separate user accounts.
 

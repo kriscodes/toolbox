@@ -41,7 +41,7 @@
         </section>
         <section>
           <h2>What analytics observes</h2>
-          <p>We collect approved page paths, coarse device category, recognized referral or campaign source, page and tool opens, relevant link clicks, and a fixed event when a validated Prompt Builder generation is attempted. An attempt is not a successful result. Analytics never receives prompt text, generated output, project context, group or prompt names, access keys, form values, or other tool content.</p>
+          <p>We collect approved page paths, coarse device category, recognized referral or campaign source, page and tool opens, relevant link clicks, and a fixed event when private AI generation is attempted in Prompt Builder. An attempt is not a successful result. Free template generation does not send a generation event. Analytics never receives prompt text, generated output, project context, group or prompt names, access keys, form values, or other tool content.</p>
           <p>Paths exclude query strings and fragments; only approved campaign labels are retained. Unknown sources stay unknown. Links between these three sites share only the source origin, never its page path or query, for arrival attribution. Scroll depth records only 25%, 50%, 75%, and 100% milestones, not a continuous trail. Active time estimates visible browsing until 60 seconds after recent activity, including initial reading time. It pauses while a tab is hidden or idle and cannot tell whether someone is actually reading.</p>
           <p>Last observed pages and page sequences are estimates. An observed exit does not prove that a browser was closed, and an email, contact, or GitHub click is only a click. New measurements begin after this tracking version is deployed; earlier behavior cannot be reconstructed.</p>
         </section>
@@ -53,9 +53,9 @@
         </section>
         <section>
           <h2>Your Prompt Builder content</h2>
-          <p>The prompt library and drafts stay in this browser unless you export them or request AI generation. A generation request separately sends the information needed to generate your prompt through the Prompt API to its AI provider. That requested tool operation is separate from Studio Insights. Analytics never receives those values. Do not put secrets or sensitive personal information into a generation request.</p>
+          <p>The free template builder formats your idea and included context entirely in this browser, without an AI provider or access key. The prompt library and drafts stay here unless you export them or choose private AI generation. Private AI separately sends your idea, included context, and selected options through the Prompt API to its AI provider. That requested tool operation is separate from Studio Insights. Analytics never receives those values. Do not put secrets or sensitive personal information into a private AI generation request.</p>
         </section>
-        <p class="toolbox-margin-label">Notice updated November 16, 2026</p>
+        <p class="toolbox-margin-label">Notice updated November 17, 2026</p>
       </main>
       <footer class="toolbox-footer"><a href="/">Toolbox</a><a href="https://kristiansalmeron.com/" referrerpolicy="origin">Portfolio ↗</a><a href="https://lab.kristiansalmeron.com/" referrerpolicy="origin">Lab ↗</a></footer>
       <p id="appearance-status" class="toolbox-status" role="status" aria-live="polite"></p>

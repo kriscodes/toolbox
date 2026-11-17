@@ -9,6 +9,8 @@ The browser application is public, but generation uses a private provider accoun
 
 ## Decision
 
+The public browser application also offers a free template mode, added November 17, 2026. It formats prompts locally without contacting this gateway. The following controls apply to optional private AI generation.
+
 Use a small Node HTTP service for generation. Keep `OPENAI_API_KEY` on the server. Require a separate `PROMPT_BUILDER_ACCESS_KEY` of at least 24 characters as a bearer credential. Retain that workbench key only in browser memory for the visit.
 
 Validate complete requests and exact browser origins. Keep allowed models in [the shared catalog](../../packages/prompt-contracts/src/index.ts), so clients cannot choose arbitrary provider model IDs. Use the Responses API with `store: false`, `reasoning.effort: none`, a 1,800-token output limit, and a 45-second timeout.
