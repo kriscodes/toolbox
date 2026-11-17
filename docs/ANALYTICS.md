@@ -4,7 +4,7 @@ Toolbox loads the optional first-party script at `https://analytics.kristiansalm
 
 ## Release contract
 
-Deploy the compatible Portfolio analytics API and tracker before releasing this integration. Keep the static site's existing build/publish configuration. Do not deploy the Prompt API or alter its credentials for an analytics-only change. The site marker is `toolbox`; the tracker accepts only known owned domains and fixed site routes. Referrer policy on the script is `no-referrer`. A failed or blocked script never blocks the website. Browser navigation is tracked by the common runtime; do not add a second pageview collector.
+Deploy the compatible Portfolio analytics API and tracker before releasing this integration. Keep the static site's existing build/publish configuration. Do not deploy the Prompt API or alter its credentials for an analytics-only change. The site marker is `toolbox`; the tracker accepts only known owned domains and fixed site routes. Referrer policy on the script is `no-referrer`. Links among the exact Portfolio, Lab, and Toolbox hosts use `referrerpolicy="origin"`, sharing only the source origin (never its path, query, or fragment) for first-party arrival attribution. External links keep their existing policy. A failed or blocked script never blocks the website. Browser navigation is tracked by the common runtime; do not add a second pageview collector.
 
 New metrics start only after both collector and site integration are deployed. Earlier visits cannot be backfilled. Verify the source revision and live delivered scripts before describing a site as connected. No production deployment is implied by this document.
 

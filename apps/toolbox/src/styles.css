@@ -147,3 +147,28 @@ main:focus { outline: none; }
     #toolbox .toolbox-link-arrow { transition: none; }
     #toolbox a:hover .toolbox-link-arrow { transform: none; }
   }
+
+/* Preference feedback stays readable independently of the optional tracker. */
+.studio-insights-preference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 16px 24px;
+  border-bottom: 1px solid light-dark(#c8d6ce, #40574a);
+  background: light-dark(#eff8f3, #192d23);
+  color: light-dark(#193d2d, #e6f5ed);
+  font: 400 14px/1.6 system-ui, sans-serif;
+}
+.studio-insights-preference p { margin: 0; flex: 1 1 260px; }
+.studio-insights-preference button {
+  padding: 8px 16px;
+  min-height: 44px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.studio-insights-preference button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
