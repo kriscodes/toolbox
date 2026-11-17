@@ -1,6 +1,6 @@
 # Deployment and operations
 
-Run commands from the repository root using the version in [`.node-version`](../.node-version). Render settings are maintained on the services; this repository does not contain a Render Blueprint.
+Run commands from the repository root using the version in [`.node-version`](../.node-version). [`render.yaml`](../render.yaml) manages both existing Render services and their deployment policy.
 
 The static site includes a free browser template builder that works without API configuration or credentials. It formats the visitor's idea and context locally. The API setup below is only for the optional private AI mode.
 
@@ -42,6 +42,16 @@ The public site uses `toolbox.kristiansalmeron.com`. Production browser code def
 Set the two secret keys on the API service and use `ALLOWED_ORIGINS=https://toolbox.kristiansalmeron.com`. Leave Render's supplied `PORT` in place; the server binds to `0.0.0.0`. There is no prompt-library database or disk to configure. The limiter is process-local, so running multiple API instances would require a shared limiter. Confirm the service's current instance plan in Render rather than inferring it from this code.
 
 The build emits all three public routes as HTML files, so a catch-all rewrite is unnecessary. Studio Insights is a separate Portfolio service; its compatible tracker and collector must be available for analytics to work.
+
+## Release workflow
+
+Use the same process as Portfolio and Lab: create a regular feature branch, open a pull request, wait for CI, then merge into `main`. GitHub Actions runs `npm run verify` on every pull request and push to `main`, with a manual run option. This covers lint, tests, workspace type checks, a production build, and the public-build audit. Render waits for the deployed commit's checks with `autoDeployTrigger: checksPass`; failing checks or zero detected checks block automatic deployment. Do not add workflow path filters that skip CI on deployable commits.
+
+Each service's build filter includes its application, shared packages, dependency lockfile, and runtime/TypeScript configuration. The static site also includes tool source and build scripts. Website-only changes do not deploy the API; API-only changes do not deploy the website. Documentation-only changes run CI without application deploys. Update the filters when introducing new build inputs.
+
+The Blueprint tracks `main` with Auto Sync enabled. Adopt the existing `kristian-toolbox` and `toolbox-prompt-api` services rather than creating replacements. Their current domains, free API plan, and environment values are preserved. `sync: false` entries keep credentials in Render; provide the documented values when creating an entirely new installation.
+
+Blueprint configuration syncs and manual deploys are separate from commit-triggered deployments. Review configuration changes and merge only after PR checks pass. Manual releases are for recovery after verifying the selected commit's checks. After deploying a specific commit, restore **After CI Checks Pass** if Render disabled auto-deploy. Routine releases do not use deploy hooks.
 
 ## Verification and maintenance
 
