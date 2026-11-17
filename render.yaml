@@ -1,0 +1,60 @@
+# Manage the existing Toolbox services. See docs/DEPLOYMENT.md.
+services:
+  - type: web
+    name: kristian-toolbox
+    runtime: static
+    repo: https://github.com/kriscodes/toolbox
+    branch: main
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - apps/toolbox/**
+        - tools/**
+        - packages/**
+        - scripts/**
+        - package.json
+        - package-lock.json
+        - .node-version
+        - .npmrc
+        - tsconfig*.json
+        - render.yaml
+    domains:
+      - toolbox.kristiansalmeron.com
+    envVars:
+      - key: NODE_VERSION
+        sync: false
+      - key: VITE_PROMPT_API_URL
+        sync: false
+
+  - type: web
+    name: toolbox-prompt-api
+    runtime: node
+    repo: https://github.com/kriscodes/toolbox
+    branch: main
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npm run check
+    startCommand: npm run start:api
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - apps/prompt-api/**
+        - packages/**
+        - package.json
+        - package-lock.json
+        - .node-version
+        - .npmrc
+        - tsconfig*.json
+        - render.yaml
+    envVars:
+      - key: NODE_VERSION
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PROMPT_BUILDER_ACCESS_KEY
+        sync: false
