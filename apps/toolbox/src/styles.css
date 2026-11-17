@@ -89,7 +89,7 @@ main:focus { outline: none; }
   #toolbox .toolbox-about[open] summary :is([data-lucide], .lucide) { transform: rotate(45deg); }
   #toolbox .toolbox-about-content { padding: 0 40px 5px 148px; color: var(--toolbox-muted); font-size: 14px; line-height: 1.85; max-width: 800px; }
   #toolbox .toolbox-about-content a { color: var(--toolbox-accent); text-decoration: underline; text-underline-offset: 4px; }
-  #toolbox .toolbox-footer { margin-top: auto; border-top: 1px solid var(--toolbox-hairline); padding: 22px 0 27px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  #toolbox .toolbox-footer { margin-top: auto; border-top: 1px solid var(--toolbox-hairline); padding: 22px 0 27px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; }
   #toolbox .toolbox-footer-signature { display: flex; align-items: center; gap: 10px; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: -.3px; }
   #toolbox .toolbox-footer-signature .toolbox-stamp { font-size: 30px; width: 14px; height: 14px; margin: 0; }
   #toolbox .toolbox-source { display: inline-flex; align-items: center; gap: 8px; color: var(--toolbox-accent); font-size: 12px; }
@@ -147,3 +147,28 @@ main:focus { outline: none; }
     #toolbox .toolbox-link-arrow { transition: none; }
     #toolbox a:hover .toolbox-link-arrow { transform: none; }
   }
+
+/* Preference feedback stays readable independently of the optional tracker. */
+.studio-insights-preference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 16px 24px;
+  border-bottom: 1px solid light-dark(#c8d6ce, #40574a);
+  background: light-dark(#eff8f3, #192d23);
+  color: light-dark(#193d2d, #e6f5ed);
+  font: 400 14px/1.6 system-ui, sans-serif;
+}
+.studio-insights-preference p { margin: 0; flex: 1 1 260px; }
+.studio-insights-preference button {
+  padding: 8px 16px;
+  min-height: 44px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.studio-insights-preference button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode, type SyntheticEvent } from 'react';
 import { MAX_CONTEXT_LENGTH, MAX_IDEA_LENGTH, MAX_PROMPT_LENGTH, MODELS, TASKS, type GenerationRequest } from '@toolbox/prompt-contracts';
 import { PromptApiError, requestPrompt } from './client';
+import { trackGenerationAttempt } from './analytics';
 import { ConfirmationDialog, type ConfirmationOptions } from './confirmation';
 import { createConfirmationRequest } from './confirmation-request';
 import {
@@ -309,6 +310,7 @@ export function PromptBuilder(): ReactNode {
     const timeout = window.setTimeout(function expireRequest() { controller.abort(new Error('timeout')); }, 120_000);
     try {
       const apiUrl = import.meta.env.VITE_PROMPT_API_URL || (import.meta.env.PROD ? 'https://toolbox-prompt-api.onrender.com' : '');
+      trackGenerationAttempt();
       const response = await requestPrompt(generationRequest(library), accessKey, controller.signal, apiUrl);
       if (controller.signal.aborted) return;
       patchDraft({ prompt: response.prompt, generatedModelId: response.modelId });
@@ -468,14 +470,14 @@ export function PromptBuilder(): ReactNode {
 
   return <div className="pb-app">
     <a className="pb-skip" href="#pb-idea">Skip to prompt editor</a>
-    <header className="pb-top"><a className="pb-maker" href="https://kristiansalmeron.com/"><strong>KS</strong><span className="pb-maker-divider" />Kristian Salmeron</a><nav className="pb-top-nav" aria-label="Main navigation"><a href="/">Toolbox <span aria-hidden="true">↗</span></a><a href="https://kristiansalmeron.com/">Portfolio <span aria-hidden="true">↗</span></a><button className="pb-theme" type="button" aria-label="Dark appearance" aria-pressed={dark} onClick={toggleAppearance}>{dark ? '☀' : '◐'}</button></nav></header>
+    <header className="pb-top"><a className="pb-maker" href="https://kristiansalmeron.com/" referrerPolicy="origin"><strong>KS</strong><span className="pb-maker-divider" />Kristian Salmeron</a><nav className="pb-top-nav" aria-label="Main navigation"><a href="/">Toolbox <span aria-hidden="true">↗</span></a><a href="https://kristiansalmeron.com/" referrerPolicy="origin">Portfolio <span aria-hidden="true">↗</span></a><button className="pb-theme" type="button" aria-label="Dark appearance" aria-pressed={dark} onClick={toggleAppearance}>{dark ? '☀' : '◐'}</button></nav></header>
     <div className="pb-intro"><div><p className="pb-kicker"><a href="/">TOOLBOX</a><span aria-hidden="true"> / </span> PROMPT BUILDER</p><h1>Prompt builder<span aria-hidden="true">✳</span></h1><p className="pb-intro-copy">Turn an idea into a useful prompt, with the context that makes it yours.</p></div><button className="pb-access" type="button" onClick={showAccess} disabled={busy}><Icon name="lock" /><span>{accessKey ? 'AI unlocked' : 'Unlock AI'}</span></button></div>
     <div className="pb-shell">
       <aside className="pb-sidebar" aria-label="Prompt library">
         <button type="button" className="pb-new" onClick={newPrompt} disabled={busy || storageBlocked}><Icon name="plus" />New prompt</button>
         <section><div className="pb-group-heading"><h2>Groups</h2><button className="pb-icon-button" type="button" onClick={addGroup} aria-label="Add group" disabled={busy || storageBlocked}><Icon name="plus" /></button></div><nav className="pb-group-nav" aria-label="Prompt groups">{library.groups.map(renderGroup)}</nav></section>
         <section className={`pb-recent ${showSaved ? 'pb-recent-open' : ''}`}><div className="pb-group-heading"><h2>Saved prompts <span className="pb-count">{savedPrompts.length}</span></h2><button className="pb-mobile-toggle pb-text-button" type="button" onClick={toggleSaved} aria-expanded={showSaved}>{showSaved ? 'Hide' : 'Show'}</button></div><div className="pb-recent-list">{savedPrompts.length ? savedPrompts.map(renderSaved) : <p className="pb-empty">Saved prompts will appear here.</p>}</div></section>
-        <div className="pb-library-footer"><p>{savingPaused ? 'Saving paused' : 'Saved in this browser'}</p><div className="pb-backup-actions"><button type="button" className="pb-text-button" onClick={exportBackup}>Export</button><span>·</span><button type="button" className="pb-text-button" onClick={chooseBackup} disabled={storageBlocked || busy}>Import</button></div><input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={importBackup} aria-label="Import prompt backup" /></div>
+        <div className="pb-library-footer"><p>{savingPaused ? 'Saving paused' : 'Saved in this browser'} · <a href="/privacy/">Privacy & analytics</a></p><div className="pb-backup-actions"><button type="button" className="pb-text-button" onClick={exportBackup}>Export</button><span>·</span><button type="button" className="pb-text-button" onClick={chooseBackup} disabled={storageBlocked || busy}>Import</button></div><input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={importBackup} aria-label="Import prompt backup" /></div>
       </aside>
       <main className="pb-main">
         <div className="pb-heading"><div><p className="pb-eyebrow">{group.name}</p><h2>{draft.savedId ? 'Make it your own.' : 'Start with an idea.'}</h2></div><button className="pb-text-button" type="button" onClick={editCurrentGroup} disabled={busy || storageBlocked}>Edit group</button></div>

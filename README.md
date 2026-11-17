@@ -18,7 +18,7 @@ The [original redesign preview](docs/previews/toolbox-desktop.jpg) records the e
 | `apps/prompt-api` | Node AI generation gateway |
 | `packages/prompt-contracts` | Shared prompt model catalog, validation, and types |
 
-All workspaces continue to use one npm lockfile. Portfolio, Toolbox, and Engineering Lab have independent repositories and release lifecycles. There is no shared runtime dependency between these websites.
+All workspaces continue to use one npm lockfile. Portfolio, Toolbox, and Engineering Lab have independent repositories and release lifecycles. Their core experiences remain independent. Optional first-party audience measurement uses the existing Studio Insights service; failure or blocking of that script does not prevent using Toolbox. See [analytics integration and privacy](docs/ANALYTICS.md).
 
 ## Develop and verify
 

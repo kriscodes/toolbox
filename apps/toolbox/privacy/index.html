@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="First-party analytics, your browser choices, and the privacy of content in Toolbox." />
+    <link rel="canonical" href="https://toolbox.kristiansalmeron.com/privacy/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="stylesheet" href="/src/privacy.css" />
+    <title>Privacy & analytics — Toolbox</title>
+    <script>
+      try {
+        if (localStorage.getItem('toolbox.theme.v1') === 'dark') {
+          document.documentElement.dataset.theme = 'dark';
+          document.querySelector('meta[name="theme-color"]').content = '#101d2c';
+        }
+      } catch { /* Keep the page usable without storage. */ }
+    </script>
+    <script defer src="https://analytics.kristiansalmeron.com/analytics-assets/tracker.js" data-site="toolbox" referrerpolicy="no-referrer"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div id="toolbox">
+      <header class="toolbox-masthead">
+        <a class="toolbox-maker" href="/">← Toolbox</a>
+        <nav class="toolbox-nav" aria-label="Privacy navigation">
+          <a href="/tools/prompt-builder/">Prompt Builder</a>
+          <button class="toolbox-appearance theme-toggle" type="button" aria-label="Dark appearance" aria-pressed="false" hidden>◐</button>
+        </nav>
+      </header>
+      <main id="main" class="toolbox-privacy" tabindex="-1">
+        <p class="toolbox-margin-label">YOUR BROWSER, YOUR CHOICE</p>
+        <h1>Privacy & analytics</h1>
+        <p class="privacy-lead">Studio Insights is Kristian’s first-party audience measurement for Portfolio, Lab, and Toolbox. It helps explain which pages and tools are useful without identifying individual people.</p>
+        <section>
+          <h2>Choose whether to participate</h2>
+          <p><a href="/privacy/?analytics_opt_out=1">Exclude this browser from analytics</a> · <a href="/privacy/?analytics_opt_out=0">Allow analytics in this browser</a></p>
+          <p>The preference is shared across participating kristiansalmeron.com subdomains when cookies are available, using a nonidentifying preference cookie lasting up to a year. Global Privacy Control and Do Not Track take precedence over allowing analytics. Set the preference separately in each browser or device. With cookies blocked, choices and visits may remain separate on each site. JavaScript must run to save the choice; when analytics is blocked or JavaScript is off, no analytics events are sent.</p>
+        </section>
+        <section>
+          <h2>What analytics observes</h2>
+          <p>We collect approved page paths, coarse device category, recognized referral or campaign source, page and tool opens, relevant link clicks, and a fixed event when a validated Prompt Builder generation is attempted. An attempt is not a successful result. Analytics never receives prompt text, generated output, project context, group or prompt names, access keys, form values, or other tool content.</p>
+          <p>Paths exclude query strings and fragments; only approved campaign labels are retained. Unknown sources stay unknown. Links between these three sites share only the source origin, never its page path or query, for arrival attribution. Scroll depth records only 25%, 50%, 75%, and 100% milestones, not a continuous trail. Active time estimates visible browsing until 60 seconds after recent activity, including initial reading time. It pauses while a tab is hidden or idle and cannot tell whether someone is actually reading.</p>
+          <p>Last observed pages and page sequences are estimates. An observed exit does not prove that a browser was closed, and an email, contact, or GitHub click is only a click. New measurements begin after this tracking version is deployed; earlier behavior cannot be reconstructed.</p>
+        </section>
+        <section>
+          <h2>Short-lived, first-party measurement</h2>
+          <p>Random daily browser identifiers and short-lived visit identifiers can connect Portfolio, Lab, and Toolbox visits on this domain. Visits expire after 30 minutes of inactivity; identifiers also rotate at midnight in America/Los_Angeles. Identifiers are hashed before database storage. Restricted cookies or storage may leave visits unmatched; different browsers, devices, and days may count again. Returning people and unrelated-site activity are not tracked.</p>
+          <p>There are no advertising trackers, fingerprinting, session replay, precise location, or collection of names or email addresses in analytics. Events go to analytics.kristiansalmeron.com, with owner-only reporting and up to 180 days of event retention in a private PostgreSQL database. Backups follow the hosting provider’s retention policy. Hosting infrastructure processes ordinary request metadata to serve these websites.</p>
+          <p>A browser queue of at most 100 events retains pending events for up to 24 hours for retry. Opting out clears this site’s queue and identifiers; other participating tabs clear their own queues when they next check the shared choice. Blocked requests, offline use, closed tabs, and delayed events make counts and durations estimates. Analytics availability does not prevent use of Toolbox.</p>
+        </section>
+        <section>
+          <h2>Your Prompt Builder content</h2>
+          <p>The prompt library and drafts stay in this browser unless you export them or request AI generation. A generation request separately sends the information needed to generate your prompt through the Prompt API to its AI provider. That requested tool operation is separate from Studio Insights. Analytics never receives those values. Do not put secrets or sensitive personal information into a generation request.</p>
+        </section>
+        <p class="toolbox-margin-label">Notice updated November 16, 2026</p>
+      </main>
+      <footer class="toolbox-footer"><a href="/">Toolbox</a><a href="https://kristiansalmeron.com/" referrerpolicy="origin">Portfolio ↗</a><a href="https://lab.kristiansalmeron.com/" referrerpolicy="origin">Lab ↗</a></footer>
+      <p id="appearance-status" class="toolbox-status" role="status" aria-live="polite"></p>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

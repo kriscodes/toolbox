@@ -29,6 +29,7 @@ async function fixture(t, changes = {}) {
     'assets/home.js': 'import"./theme.js";',
     'assets/theme.js': 'localStorage.setItem("toolbox.theme.v1","light");',
     'tools/prompt-builder/index.html': '<!doctype html><html><head><title>Prompt Builder</title></head><body><script type="module" src="/assets/prompt.js"></script></body></html>',
+    'privacy/index.html': '<!doctype html><html><head><title>Privacy & analytics — Toolbox</title></head><body><main><h1>Privacy</h1><a href="/privacy/?analytics_opt_out=1">Exclude</a><a href="/privacy/?analytics_opt_out=0">Allow</a></main></body></html>',
     'assets/prompt.js': 'localStorage.setItem("toolbox.prompt-builder.library.v1", "{}");',
     'fonts/test.woff2': 'fixture font',
     'favicon.svg': '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
@@ -92,4 +93,13 @@ test('rejects a sitemap that publishes removed routes and a homepage requiring J
   assert.ok(result.errors.some((error) => error.includes('readable main content')));
   assert.ok(result.errors.some((error) => error.includes('page heading')));
   assert.ok(result.errors.some((error) => error.includes('only the canonical Toolbox homepage')));
+});
+
+
+test('requires a public privacy notice with both browser preference controls', async (t) => {
+  const missing = await auditPublicBuild({ directory: await fixture(t, { 'privacy/index.html': null }) });
+  assert.ok(missing.errors.some((error) => error.includes('public privacy notice is missing')));
+  const incomplete = await auditPublicBuild({ directory: await fixture(t, { 'privacy/index.html': '<main><h1>Privacy</h1></main>' }) });
+  assert.ok(incomplete.errors.some((error) => error.includes('analytics_opt_out=1')));
+  assert.ok(incomplete.errors.some((error) => error.includes('analytics_opt_out=0')));
 });
