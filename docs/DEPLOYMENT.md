@@ -45,7 +45,7 @@ The build emits all three public routes as HTML files, so a catch-all rewrite is
 
 ## Release workflow
 
-Use the same process as Portfolio and Lab: create a regular feature branch, open a pull request, wait for CI, then merge into `main`. GitHub Actions runs `npm run verify` on every pull request and push to `main`, with a manual run option. This covers lint, tests, workspace type checks, a production build, and the public-build audit. Render waits for the deployed commit's checks with `autoDeployTrigger: checksPass`; failing checks or zero detected checks block automatic deployment. Do not add workflow path filters that skip CI on deployable commits.
+Use the same process as Portfolio and Lab: create a regular feature branch, review it through `staging`, then promote the tested changes to `main`. See [staging setup and promotion](STAGING.md); the new environment is prepared but not activated. GitHub Actions runs `npm run verify` on every pull request and push to `main` or `staging`, with a manual run option. This covers lint, tests, workspace type checks, a production build, and the public-build audit. Render waits for the deployed commit's checks with `autoDeployTrigger: checksPass`; failing checks or zero detected checks block automatic deployment. Do not add workflow path filters that skip CI on deployable commits.
 
 Each service's build filter includes its application, shared packages, dependency lockfile, and runtime/TypeScript configuration. The static site also includes tool source and build scripts. Website-only changes do not deploy the API; API-only changes do not deploy the website. Documentation-only changes run CI without application deploys. Update the filters when introducing new build inputs.
 
