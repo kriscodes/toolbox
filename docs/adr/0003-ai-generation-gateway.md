@@ -5,43 +5,24 @@
 
 ## Context
 
-Prompt Builder needs real AI generation and a small choice of quick models. The dashboard is publicly reachable. Putting an OpenAI API key in its browser bundle would expose paid generation access, while operating a full account system would expand the first version's scope.
+The browser application is public, but generation uses a private provider account. A provider key cannot be included in a browser bundle. The current tool does not need a multi-user account system.
 
 ## Decision
 
-Add a small Node HTTP service that calls the OpenAI Responses API. Keep `OPENAI_API_KEY` in server environment variables. Require a separate private `PROMPT_BUILDER_ACCESS_KEY`, at least 24 characters long, on every generation request. The browser sends this as a bearer credential and retains it only in memory for the current visit. It is not the provider API key and must not be embedded in frontend configuration.
+Use a small Node HTTP service for generation. Keep `OPENAI_API_KEY` on the server. Require a separate `PROMPT_BUILDER_ACCESS_KEY` of at least 24 characters as a bearer credential. Retain that workbench key only in browser memory for the visit.
 
-Restrict browser origins to exact configured origins and validate the complete input on the server. Share a fixed model catalog through `packages/prompt-contracts`; clients cannot supply arbitrary provider model IDs.
+Validate complete requests and exact browser origins. Keep allowed models in [the shared catalog](../../packages/prompt-contracts/src/index.ts), so clients cannot choose arbitrary provider model IDs. Use the Responses API with `store: false`, `reasoning.effort: none`, a 1,800-token output limit, and a 45-second timeout.
 
-Initial choices, verified against official documentation on 2026-11-02:
-
-| Model | API identifier | Purpose |
-| --- | --- | --- |
-| GPT-6 Luna | `gpt-6-luna` | Default quick option |
-| GPT-5.4 Mini | `gpt-5.4-mini-2026-03-17` | Compact alternative |
-
-Both support `reasoning.effort: none`, selected explicitly for prompt construction. Use `store: false`, a maximum of 1,800 output tokens, and a 45-second provider timeout. Ask the model to produce the reusable prompt rather than execute the user's underlying task. Only complete, nonempty provider output is accepted.
-
-Bound body size, text lengths, generation rate, and concurrent requests. Abort the provider request when the client disconnects. Do not automatically retry generations, log private input, or return raw upstream errors. Provide safe errors that allow the UI to preserve the user's existing draft.
+Generate a reusable prompt that preserves the idea's actions and constraints. Task presets guide presentation; background context must not add tasks. Accept only complete, nonempty output. Bound input sizes and request rates, cancel upstream work when the client disconnects, and never retry generation automatically. Return safe errors while preserving the existing draft.
 
 ## Consequences
 
-The static site can remain on Render's CDN. The API can run on one free web instance because it stores no library data. Free-instance cold starts can delay the first request after inactivity.
+The static site and API deploy independently. The API stores no prompt library. A shared access key is a single-owner gate, not a user identity system; anyone with the key can generate until it is rotated. CORS supplements authentication.
 
-The access key is a single-owner gate, not a multi-user identity system. CORS supplements that gate and does not replace authentication. Anyone who obtains the access key can invoke generation until it is rotated.
+The six-per-minute, 60-per-hour, and two-concurrent-request limits are process-local and reset on restart. Scaling to multiple instances requires a shared limiter. These controls do not enforce a monthly spending cap.
 
-The six-per-minute, 60-per-hour, and two-concurrent-request limits are process-local and reset when the API restarts. They reduce accidental bursts but do not enforce a monetary or monthly budget. Multiple instances would require a shared limiter. Provider account limits and billing remain separate operational settings.
-
-`store: false` disables Responses API response storage; it is not a claim of zero provider retention under every account policy. The library is not sent wholesale to the provider.
+`store: false` is a request setting, not a guarantee about every form of provider retention. Only the requested generation content is sent upstream.
 
 ## Alternatives
 
-Direct browser calls would expose the provider credential. An unrestricted public proxy would expose the owner's API allowance. A full sign-in and database system is deferred until synchronization or multiple users creates a need for it.
-
-## Sources
-
-- [GPT-6 Luna model documentation](https://developers.openai.com/api/docs/models/gpt-6-luna)
-- [GPT-5.4 Mini model documentation](https://developers.openai.com/api/docs/models/gpt-5.4-mini)
-- [Responses text generation](https://developers.openai.com/api/docs/guides/text)
-
-The catalog is intentionally centralized so models can be replaced when availability changes. Deprecated GPT-5.4 Nano is excluded from the first version.
+Direct browser calls would expose the provider key. An unauthenticated proxy would expose the generation allowance. A full account and database system adds little value until multiple users or synchronization are required.

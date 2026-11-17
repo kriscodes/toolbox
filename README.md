@@ -1,66 +1,41 @@
-# Toolbox — Kristian Salmeron
+# Toolbox
 
-Toolbox is the practical developer-utilities part of Kristian's independent Portfolio, Toolbox, and Engineering Lab ecosystem. This repository keeps its existing Vite and TypeScript architecture and Render publish directory. The current design uses a white and blue palette, Space Grotesk and DM Sans, a geometric stamp, horizontal navigation, and a flat layout.
-
-The public application includes Prompt Builder, a reusable AI prompt workbench with project context and a browser-local library. Family Map and Home Cameras remain archived. New utilities should be listed only when they work.
+[Toolbox](https://toolbox.kristiansalmeron.com/) is a collection of developer utilities by Kristian Salmeron. Its first tool, Prompt Builder, turns an idea and optional project context into an editable prompt. Groups, drafts, and saved prompts stay in the browser, with export and import for backups.
 
 [![Check](https://github.com/kriscodes/toolbox/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/kriscodes/toolbox/actions/workflows/check.yml)
 
-The [original redesign preview](docs/previews/toolbox-desktop.jpg) records the earlier color palette.
+## Development
 
-## Repository boundaries
-
-| Location | Responsibility |
-| --- | --- |
-| `apps/toolbox` | Public Vite application, assets, and browser entry points |
-| `archive/2026-11-toolbox` | Preserved earlier workbench, catalog, entry pages, artwork, and local archive configuration |
-| `tools/prompt-builder` | React prompt editor and browser library |
-| `apps/prompt-api` | Node AI generation gateway |
-| `packages/prompt-contracts` | Shared prompt model catalog, validation, and types |
-
-All workspaces continue to use one npm lockfile. Portfolio, Toolbox, and Engineering Lab have independent repositories and release lifecycles. Their core experiences remain independent. Optional first-party audience measurement uses the existing Studio Insights service; failure or blocking of that script does not prevent using Toolbox. See [analytics integration and privacy](docs/ANALYTICS.md).
-
-## Develop and verify
-
-Use Node from `.node-version` and run from the repository root:
+Use the Node version in [`.node-version`](.node-version), then run:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-The prompt editor and its local library work without an API key or server. AI generation requires the separately configured prompt API and a private workbench access key. The frontend build output remains root `dist/`.
+Open the URL printed by Vite. Editing and saving prompts work without a server. AI generation requires the [Prompt API setup](docs/DEPLOYMENT.md#local-api-setup) and a private workbench access key.
 
 ```sh
 npm run verify
 ```
 
-Verification runs ESLint, workspace tests, TypeScript checks, and the production browser build. Individual commands remain `npm run lint`, `npm test`, `npm run check`, and `npm run build`. GitHub Actions runs the checks for pull requests and changes to `main`. Use feature branches and pull requests for changes. A production deployment or DNS change requires separate owner approval.
+This runs ESLint, tests, TypeScript checks, the production build, and an audit of the generated public files. CI runs the same checks on pull requests and pushes to `main`. Provider calls are mocked in tests; no API credentials are needed.
 
-The build also audits the actual public output for metadata, asset references, crawler files, and accidentally included archived material. See the [visual specification](docs/VISUAL-SPECIFICATION.md) and [redesign validation record](docs/TOOLBOX-REDESIGN-VALIDATION.md). Regenerate the committed sharing image from its vector source with `npm run assets:brand`.
+## Repository
 
-The retained suites still check dashboard search/pins/URL behavior, prompt-library recovery and lifecycle, API validation/authorization/failures, cancellation, and provider transport boundaries. Provider calls are injected in tests, so the suite does not require credentials or incur generation charges. Browser and accessibility checks complement these unit tests when changing public interfaces.
+| Path | Responsibility |
+| --- | --- |
+| `apps/toolbox` | Vite pages, public assets, and browser entry points |
+| `tools/prompt-builder` | React editor and local prompt library |
+| `apps/prompt-api` | Node generation API |
+| `packages/prompt-contracts` | Shared model catalog, request types, and validation |
 
-Repository conventions continue to require consistent TypeScript imports and purpose-oriented JSDoc on named functions, components, and handlers. Keep data transformations and validation separate from rendering. TypeScript remains on the supported 6.x line for the current ESLint parser; the existing patched `minimatch` override remains in place.
+The workspaces share one npm lockfile. The browser build writes to `dist/`; the API runs as a separate service. Portfolio and Lab have their own repositories. Optional first-party analytics are provided by Portfolio's Studio Insights service.
 
-## Archived projects and data
+- [Architecture](docs/ARCHITECTURE.md)
+- [Deployment and operations](docs/DEPLOYMENT.md)
+- Decisions: [workspace boundaries](docs/adr/0001-monorepo-tool-boundaries.md), [browser storage](docs/adr/0002-local-prompt-library.md), [generation gateway](docs/adr/0003-ai-generation-gateway.md)
 
-See [the archive guide](archive/2026-11-toolbox/README.md) for local inspection, optional archive builds, original source locations, and browser-library recovery constraints. The [original README](archive/2026-11-toolbox/ORIGINAL-README.md) retains prior setup and operational details. The [operations guide](docs/operations.md) covers the restored editor and API, and [the upstream overview](archive/2026-11-toolbox/UPSTREAM-OVERVIEW.md) records its previous public presentation.
+## Assets
 
-```sh
-npm run dev:archive
-npm run test:archive
-npm run build:archive
-```
-
-The optional archive runs on `127.0.0.1:4175` and builds into its own ignored directory. The current public Prompt Builder uses the retained editor, not the archived dashboard. The historical sketches remain in the archive; the restored editor also uses a public copy of the Manrope font; `npm run assets` regenerates those archive assets and does not repopulate the public directory.
-
-No personal library data is migrated, deleted, or uploaded. The original local-storage schema and keys remain unchanged in the retained editor. A local archive is a different browser origin and cannot automatically access existing production-origin libraries; use an exported backup or a deliberate approved same-origin recovery procedure.
-
-## Deployment
-
-The existing public Render configuration remains a repository-root build with `npm ci && npm run build`, publishing `dist`. This change preserves that contract and does not reconfigure a running service. The browser build emits the homepage and `/tools/prompt-builder/` without copying the archived dashboard or assets.
-
-The restored editor uses the existing Prompt API service for authenticated generation; see the [operations guide](docs/operations.md) for configuration. Do not remove production credentials, stop services, change DNS, or deploy archive output as part of a frontend-only update. The existing Prompt API continues to use its current service configuration.
-
-Before release, run verification, inspect the generated output for excluded archive routes/assets, and validate the deployed homepage, prompt editor, crawler files, keyboard navigation, and mobile layout. A successful build alone does not verify the live website.
+Space Grotesk and DM Sans are self-hosted with their [font licenses](apps/toolbox/public/fonts/). Regenerate the sharing image from `artwork/brand/social-preview.svg` with `npm run assets:brand`. Retired designs and tools are available in Git history.
