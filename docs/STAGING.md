@@ -9,7 +9,7 @@ Import the separate [`render.staging.yaml`](../render.staging.yaml) only after r
 | Prompt library               | Browser storage isolated by staging origin; no hosted database |
 | Analytics                    | Portfolio's separate staging API/database                      |
 
-`VITE_PROMPT_API_URL` points only to the stage prompt API. `VITE_ANALYTICS_ORIGIN` rewrites the collector script in all three HTML entry points at build time. Keep both values public and secret-free. API `ALLOWED_ORIGINS` contains only the custom staging site. A new access key is generated for staging; supply a separate, limited provider key through Render. Never copy production provider credentials or browser libraries. Missing provider credentials leave private AI unavailable; the free local builder still works.
+`VITE_PROMPT_API_URL` points only to the stage prompt API. `VITE_ANALYTICS_ORIGIN` rewrites the collector script in all three HTML entry points at build time. Keep both values public and secret-free. API `ALLOWED_ORIGINS` contains the custom staging site and its explicit Render alias. A new access key is generated for staging; supply a separate, limited provider key through Render. Never copy production provider credentials or browser libraries. Missing provider credentials leave private AI unavailable; the free local builder still works.
 
 The free API may sleep, so it is not suitable for comparing warm production latency. Upgrade only if predictable staging availability is needed. Verify all three routes, private-mode access denial, cancelled requests, and the free builder without any API call. A real provider generation incurs usage and is a separate smoke-check decision.
 
@@ -27,4 +27,8 @@ These commits prepare configuration; no resource, DNS record, remote branch, pro
 
 At activation, create `staging` from the approved source, review the provider's Blueprint plan, confirm workspace/resource names and costs, configure stage-only secrets, and install the exact DNS records Render provides. Set up branch protection separately; workflow files do not create branch protection. Keep Blueprint Auto Sync off during initial wiring and review future configuration syncs explicitly.
 
-Use the custom staging domains for end-to-end checks. `onrender.com` aliases are not automatically included in browser origin allowlists. Staging is public unless separately access-controlled; `X-Robots-Tag: noindex, nofollow, noarchive` discourages indexing but is not authentication. Use synthetic data only.
+Use the explicit Render staging alias for initial checks, then repeat on the custom staging domain after DNS verification. Staging is public unless separately access-controlled; `X-Robots-Tag: noindex, nofollow, noarchive` discourages indexing but is not authentication. Use synthetic data only.
+
+## Initial Render URL checks
+
+The staging collector uses `https://kristian-salmeron-api-staging.onrender.com` so smoke checks do not depend on custom DNS. Only the three explicitly named staging frontend aliases are accepted. On Render aliases, analytics cookies remain host-only; cross-site visitor continuity is checked after custom staging domains are connected.

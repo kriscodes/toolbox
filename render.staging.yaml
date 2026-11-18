@@ -38,7 +38,7 @@ projects:
               - key: VITE_PROMPT_API_URL
                 value: https://toolbox-prompt-api-staging.onrender.com
               - key: VITE_ANALYTICS_ORIGIN
-                value: https://analytics.staging.kristiansalmeron.com
+                value: https://kristian-salmeron-api-staging.onrender.com
             headers:
               - path: /*
                 name: X-Robots-Tag
@@ -65,13 +65,12 @@ projects:
                 - tsconfig*.json
                 - render.staging.yaml
             envVars:
-              - key: OPENAI_API_KEY
-                sync: false
+              # Add a dedicated provider key manually when private AI testing is needed.
               - key: NODE_VERSION
                 value: 22.23.4
               - key: SKIP_INSTALL_DEPS
                 value: "true"
               - key: ALLOWED_ORIGINS
-                value: https://toolbox.staging.kristiansalmeron.com
+                value: https://toolbox.staging.kristiansalmeron.com,https://kristian-toolbox-staging.onrender.com
               - key: PROMPT_BUILDER_ACCESS_KEY
                 generateValue: true

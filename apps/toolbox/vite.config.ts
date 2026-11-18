@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
     ![
       "https://analytics.kristiansalmeron.com",
       "https://analytics.staging.kristiansalmeron.com",
+      "https://kristian-salmeron-api-staging.onrender.com",
     ].includes(analyticsOrigin)
   ) {
     throw new Error(
