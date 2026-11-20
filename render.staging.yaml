@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://render.com/schema/render.yaml.json
 previews:
-  generation: "off"
+  generation: 'off'
 projects:
   - name: Toolbox Staging
     environments:
@@ -32,7 +32,7 @@ projects:
               - key: NODE_VERSION
                 value: 22.23.4
               - key: SKIP_INSTALL_DEPS
-                value: "true"
+                value: 'true'
               - key: VITE_PROMPT_API_URL
                 value: https://toolbox-prompt-api-staging.onrender.com
               - key: VITE_ANALYTICS_ORIGIN
@@ -67,7 +67,7 @@ projects:
               - key: NODE_VERSION
                 value: 22.23.4
               - key: SKIP_INSTALL_DEPS
-                value: "true"
+                value: 'true'
               - key: ALLOWED_ORIGINS
                 value: https://toolbox.staging.kristiansalmeron.com,https://kristian-toolbox-staging.onrender.com
               - key: PROMPT_BUILDER_ACCESS_KEY

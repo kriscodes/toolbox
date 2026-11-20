@@ -19,15 +19,15 @@ Open the URL printed by Vite. The free template builder formats an idea, optiona
 npm run verify
 ```
 
-This runs ESLint, tests, TypeScript checks, the production build, and an audit of the generated public files. CI runs the same checks on pull requests and pushes to `main`. Provider calls are mocked in tests; no API credentials are needed.
+This checks Prettier formatting, ESLint (including React hook usage and effect dependencies), tests, TypeScript, the production build, and the generated public files. CI runs the same checks on pull requests and pushes to `main` and `staging`. Run `npm run format` to apply formatting. Provider calls are mocked in tests; no API credentials are needed.
 
 ## Repository
 
-| Path | Responsibility |
-| --- | --- |
-| `apps/toolbox` | Vite pages, public assets, and browser entry points |
-| `tools/prompt-builder` | React editor and local prompt library |
-| `apps/prompt-api` | Node generation API |
+| Path                        | Responsibility                                      |
+| --------------------------- | --------------------------------------------------- |
+| `apps/toolbox`              | Vite pages, public assets, and browser entry points |
+| `tools/prompt-builder`      | React editor and local prompt library               |
+| `apps/prompt-api`           | Node generation API                                 |
 | `packages/prompt-contracts` | Shared model catalog, request types, and validation |
 
 The workspaces share one npm lockfile. The browser build writes to `dist/`; the API runs as a separate service. Portfolio and Lab have their own repositories. Optional first-party analytics are provided by Portfolio's Studio Insights service.

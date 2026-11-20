@@ -25,11 +25,14 @@ async function fixture(t, changes = {}) {
   t.after(() => rm(directory, { recursive: true, force: true }));
   const files = {
     'index.html': HTML,
-    'assets/home.css': '@font-face{font-family:Test;src:url("../fonts/test.woff2")}body{color:#222}',
+    'assets/home.css':
+      '@font-face{font-family:Test;src:url("../fonts/test.woff2")}body{color:#222}',
     'assets/home.js': 'import"./theme.js";',
     'assets/theme.js': 'localStorage.setItem("toolbox.theme.v1","light");',
-    'tools/prompt-builder/index.html': '<!doctype html><html><head><title>Prompt Builder</title></head><body><script type="module" src="/assets/prompt.js"></script></body></html>',
-    'privacy/index.html': '<!doctype html><html><head><title>Privacy & analytics — Toolbox</title></head><body><main><h1>Privacy</h1><a href="/privacy/?analytics_opt_out=1">Exclude</a><a href="/privacy/?analytics_opt_out=0">Allow</a></main></body></html>',
+    'tools/prompt-builder/index.html':
+      '<!doctype html><html><head><title>Prompt Builder</title></head><body><script type="module" src="/assets/prompt.js"></script></body></html>',
+    'privacy/index.html':
+      '<!doctype html><html><head><title>Privacy & analytics — Toolbox</title></head><body><main><h1>Privacy</h1><a href="/privacy/?analytics_opt_out=1">Exclude</a><a href="/privacy/?analytics_opt_out=0">Allow</a></main></body></html>',
     'assets/prompt.js': 'localStorage.setItem("toolbox.prompt-builder.library.v1", "{}");',
     'fonts/test.woff2': 'fixture font',
     'favicon.svg': '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
@@ -54,19 +57,27 @@ test('accepts a complete public homepage and follows CSS font URLs relative to t
 });
 
 test('detects missing nested resources and social preview files', async (t) => {
-  const result = await auditPublicBuild({ directory: await fixture(t, { 'fonts/test.woff2': null, 'social-preview.png': null, 'assets/theme.js': null }) });
+  const result = await auditPublicBuild({
+    directory: await fixture(t, {
+      'fonts/test.woff2': null,
+      'social-preview.png': null,
+      'assets/theme.js': null,
+    }),
+  });
   assert.ok(result.errors.some((error) => error.includes('../fonts/test.woff2')));
   assert.ok(result.errors.some((error) => error.includes('social-preview.png')));
   assert.ok(result.errors.some((error) => error.includes('./theme.js')));
 });
 
 test('rejects retired output even when it is unlinked or bundled under an opaque filename', async (t) => {
-  const result = await auditPublicBuild({ directory: await fixture(t, {
-    'tools/retired/index.html': '<h1>Old entry point</h1>',
-    'assets/opaque.js': 'const key="toolbox.pinned-projects.v1";',
-    'artwork/old.webp': 'old image',
-    'archive/source.txt': 'source snapshot',
-  }) });
+  const result = await auditPublicBuild({
+    directory: await fixture(t, {
+      'tools/retired/index.html': '<h1>Old entry point</h1>',
+      'assets/opaque.js': 'const key="toolbox.pinned-projects.v1";',
+      'artwork/old.webp': 'old image',
+      'archive/source.txt': 'source snapshot',
+    }),
+  });
   assert.ok(result.errors.some((error) => error.includes('tools/retired/index.html')));
   assert.ok(result.errors.some((error) => error.includes('assets/opaque.js')));
   assert.ok(result.errors.some((error) => error.includes('artwork/old.webp')));
@@ -74,11 +85,16 @@ test('rejects retired output even when it is unlinked or bundled under an opaque
 });
 
 test('rejects conflicting metadata, blocked indexing and storage deletion', async (t) => {
-  const result = await auditPublicBuild({ directory: await fixture(t, {
-    'index.html': HTML.replace('</head>', '<link rel="canonical" href="https://example.com/"><meta name="robots" content="noindex"></head>'),
-    'robots.txt': `User-agent: *\nDisallow: /\nSitemap: ${ORIGIN}sitemap.xml\n`,
-    'assets/home.js': 'localStorage.clear();',
-  }) });
+  const result = await auditPublicBuild({
+    directory: await fixture(t, {
+      'index.html': HTML.replace(
+        '</head>',
+        '<link rel="canonical" href="https://example.com/"><meta name="robots" content="noindex"></head>',
+      ),
+      'robots.txt': `User-agent: *\nDisallow: /\nSitemap: ${ORIGIN}sitemap.xml\n`,
+      'assets/home.js': 'localStorage.clear();',
+    }),
+  });
   assert.ok(result.errors.some((error) => error.includes('canonical URL')));
   assert.ok(result.errors.some((error) => error.includes('indexable')));
   assert.ok(result.errors.some((error) => error.includes('must not be blocked')));
@@ -86,20 +102,25 @@ test('rejects conflicting metadata, blocked indexing and storage deletion', asyn
 });
 
 test('rejects a sitemap that publishes removed routes and a homepage requiring JavaScript for content', async (t) => {
-  const result = await auditPublicBuild({ directory: await fixture(t, {
-    'index.html': HTML.replace(/<main>[\s\S]*?<\/main>/u, '<div id="app"></div>'),
-    'sitemap.xml': `<urlset><url><loc>${ORIGIN}</loc></url><url><loc>${ORIGIN}tools/retired/</loc></url></urlset>`,
-  }) });
+  const result = await auditPublicBuild({
+    directory: await fixture(t, {
+      'index.html': HTML.replace(/<main>[\s\S]*?<\/main>/u, '<div id="app"></div>'),
+      'sitemap.xml': `<urlset><url><loc>${ORIGIN}</loc></url><url><loc>${ORIGIN}tools/retired/</loc></url></urlset>`,
+    }),
+  });
   assert.ok(result.errors.some((error) => error.includes('readable main content')));
   assert.ok(result.errors.some((error) => error.includes('page heading')));
   assert.ok(result.errors.some((error) => error.includes('only the canonical Toolbox homepage')));
 });
 
-
 test('requires a public privacy notice with both browser preference controls', async (t) => {
-  const missing = await auditPublicBuild({ directory: await fixture(t, { 'privacy/index.html': null }) });
+  const missing = await auditPublicBuild({
+    directory: await fixture(t, { 'privacy/index.html': null }),
+  });
   assert.ok(missing.errors.some((error) => error.includes('public privacy notice is missing')));
-  const incomplete = await auditPublicBuild({ directory: await fixture(t, { 'privacy/index.html': '<main><h1>Privacy</h1></main>' }) });
+  const incomplete = await auditPublicBuild({
+    directory: await fixture(t, { 'privacy/index.html': '<main><h1>Privacy</h1></main>' }),
+  });
   assert.ok(incomplete.errors.some((error) => error.includes('analytics_opt_out=1')));
   assert.ok(incomplete.errors.some((error) => error.includes('analytics_opt_out=0')));
 });

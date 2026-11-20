@@ -13,12 +13,12 @@ cp apps/prompt-api/.env.example apps/prompt-api/.env
 
 Set these values in the copied file:
 
-| Variable | Purpose |
-| --- | --- |
-| `OPENAI_API_KEY` | Server-only provider credential |
-| `PROMPT_BUILDER_ACCESS_KEY` | Private random key of at least 24 characters, entered in the workbench |
-| `ALLOWED_ORIGINS` | Comma-separated exact browser origins; the example includes local Vite URLs and the production domain |
-| `PORT` | Local API port; defaults to `3001` |
+| Variable                    | Purpose                                                                                               |
+| --------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `OPENAI_API_KEY`            | Server-only provider credential                                                                       |
+| `PROMPT_BUILDER_ACCESS_KEY` | Private random key of at least 24 characters, entered in the workbench                                |
+| `ALLOWED_ORIGINS`           | Comma-separated exact browser origins; the example includes local Vite URLs and the production domain |
+| `PORT`                      | Local API port; defaults to `3001`                                                                    |
 
 Run `npm run dev:api` and `npm run dev` in separate terminals. Open `/tools/prompt-builder/` on the Vite URL. Vite forwards `/api` to `http://127.0.0.1:3001`. If the browser origin changes, add its exact origin to `ALLOWED_ORIGINS`.
 
@@ -28,14 +28,14 @@ The API scripts load their workspace's ignored `.env` file. Provider and workben
 
 Use the repository root for both services:
 
-| Setting | Toolbox static site | Prompt API web service |
-| --- | --- | --- |
-| Branch | `main` | `main` |
-| Build | `npm ci && npm run build` | `npm ci && npm run check` |
-| Publish directory | `dist` | — |
-| Start | — | `npm run start:api` |
-| Health check | — | `/api/health` |
-| Node version | Match `.node-version` | Match `.node-version` |
+| Setting           | Toolbox static site       | Prompt API web service    |
+| ----------------- | ------------------------- | ------------------------- |
+| Branch            | `main`                    | `main`                    |
+| Build             | `npm ci && npm run build` | `npm ci && npm run check` |
+| Publish directory | `dist`                    | —                         |
+| Start             | —                         | `npm run start:api`       |
+| Health check      | —                         | `/api/health`             |
+| Node version      | Match `.node-version`     | Match `.node-version`     |
 
 The public site uses `toolbox.kristiansalmeron.com`. Production browser code defaults to `https://toolbox-prompt-api.onrender.com`. To use another API origin, set `VITE_PROMPT_API_URL` on the static site's build environment and rebuild. Supply an HTTPS origin without an API path suffix.
 
@@ -65,11 +65,11 @@ For a frontend rollback, redeploy the previous known-good commit. Browser librar
 
 ## Environments
 
-| Service | Branch | Render URL |
-| --- | --- | --- |
+| Service                    | Branch    | Render URL                                      |
+| -------------------------- | --------- | ----------------------------------------------- |
 | toolbox-prompt-api-staging | `staging` | https://toolbox-prompt-api-staging.onrender.com |
-| kristian-toolbox-staging | `staging` | https://kristian-toolbox-staging.onrender.com |
-| toolbox-prompt-api | `main` | https://toolbox-prompt-api.onrender.com |
-| kristian-toolbox | `main` | https://kristian-toolbox.onrender.com |
+| kristian-toolbox-staging   | `staging` | https://kristian-toolbox-staging.onrender.com   |
+| toolbox-prompt-api         | `main`    | https://toolbox-prompt-api.onrender.com         |
+| kristian-toolbox           | `main`    | https://kristian-toolbox.onrender.com           |
 
 Production and staging use separate services. Keep staging credentials and data isolated. Run CI on each release candidate, verify the deployed source revision and health endpoints, and retain the previous working deployment for recovery. Documentation-only commits can be excluded by build filters; deploy the checked revision manually when a rebuild is required.

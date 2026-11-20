@@ -28,13 +28,18 @@ export function initializeAppearance(): void {
     const theme: Theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     applyTheme(theme);
     let persisted = true;
-    try { localStorage.setItem(THEME_STORAGE_KEY, theme); }
-    catch { persisted = false; }
-    if (status) status.textContent = `${theme === 'dark' ? 'Dark' : 'Light'} appearance.${persisted ? '' : ' Saved for this visit only.'}`;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      persisted = false;
+    }
+    if (status)
+      status.textContent = `${theme === 'dark' ? 'Dark' : 'Light'} appearance.${persisted ? '' : ' Saved for this visit only.'}`;
   });
 
   // A cross-tab preference change updates appearance without rewriting storage.
   window.addEventListener('storage', (event) => {
-    if (event.key === THEME_STORAGE_KEY || event.key === null) applyTheme(parseTheme(event.newValue));
+    if (event.key === THEME_STORAGE_KEY || event.key === null)
+      applyTheme(parseTheme(event.newValue));
   });
 }

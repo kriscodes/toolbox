@@ -6,7 +6,7 @@
   "exports": "./src/index.tsx",
   "scripts": {
     "check": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --import tsx --test tests/*.test.mjs"
   },
   "dependencies": {
     "@toolbox/prompt-contracts": "*",
