@@ -22,6 +22,10 @@ test('generation measurement sends a fixed attempt with no user content', (t) =>
 test('missing or failed analytics cannot interrupt generation', (t) => {
   withBrowser(t, {});
   assert.doesNotThrow(trackGenerationAttempt);
-  window.StudioInsights = { track() { throw new Error('blocked'); } };
+  window.StudioInsights = {
+    track() {
+      throw new Error('blocked');
+    },
+  };
   assert.doesNotThrow(trackGenerationAttempt);
 });

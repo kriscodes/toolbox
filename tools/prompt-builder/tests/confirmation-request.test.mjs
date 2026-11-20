@@ -3,10 +3,13 @@ import test from 'node:test';
 import { createConfirmationRequest } from '../src/confirmation-request.ts';
 
 const options = {
-  kicker: 'UNSAVED DRAFT', title: 'Replace this draft?',
+  kicker: 'UNSAVED DRAFT',
+  title: 'Replace this draft?',
   description: 'Continuing will discard your current changes.',
-  recordName: 'Project plan', recordMeta: 'Toolbox · Unsaved changes',
-  confirmLabel: 'Discard & continue', cancelLabel: 'Keep editing',
+  recordName: 'Project plan',
+  recordMeta: 'Toolbox · Unsaved changes',
+  confirmLabel: 'Discard & continue',
+  cancelLabel: 'Keep editing',
 };
 
 /** Keep the test state separate from confirmation results, as it is in the editor. */
@@ -14,10 +17,20 @@ function setup() {
   let snapshot = { draft: 'Original work' };
   const changes = [];
   const controller = createConfirmationRequest({
-    getSnapshot() { return snapshot; },
-    onChange(value) { changes.push(value); },
+    getSnapshot() {
+      return snapshot;
+    },
+    onChange(value) {
+      changes.push(value);
+    },
   });
-  return { controller, changes, replaceSnapshot() { snapshot = { draft: 'New work' }; } };
+  return {
+    controller,
+    changes,
+    replaceSnapshot() {
+      snapshot = { draft: 'New work' };
+    },
+  };
 }
 
 test('accepts the current request only after clearing its visible dialog', async function acceptsCurrent() {

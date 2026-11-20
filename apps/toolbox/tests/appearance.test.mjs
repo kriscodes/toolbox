@@ -48,13 +48,19 @@ function createPage(storage) {
   const attributes = new Map([['aria-pressed', 'false']]);
   const button = {
     hidden: true,
-    setAttribute(name, value) { attributes.set(name, value); },
-    getAttribute(name) { return attributes.get(name) ?? null; },
+    setAttribute(name, value) {
+      attributes.set(name, value);
+    },
+    getAttribute(name) {
+      return attributes.get(name) ?? null;
+    },
     addEventListener(type, listener) {
       assert.equal(type, 'click');
       clickListeners.push(listener);
     },
-    click() { for (const listener of clickListeners) listener(); },
+    click() {
+      for (const listener of clickListeners) listener();
+    },
   };
   const status = { textContent: '' };
   const themeColor = { content: '#ffffff' };
@@ -86,7 +92,9 @@ function createPage(storage) {
 /** Runs delivered inline scripts before initializing the module, as a real page load would. */
 function createSession(t) {
   const names = ['document', 'window', 'localStorage'];
-  const originals = new Map(names.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
+  const originals = new Map(
+    names.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]),
+  );
   t.after(() => {
     for (const name of names) {
       const descriptor = originals.get(name);
@@ -97,14 +105,26 @@ function createSession(t) {
   return {
     open(storage, initialize = true) {
       const page = createPage(storage);
-      for (const [name, value] of [['document', page.document], ['window', page.window], ['localStorage', storage]]) {
+      for (const [name, value] of [
+        ['document', page.document],
+        ['window', page.window],
+        ['localStorage', storage],
+      ]) {
         Object.defineProperty(globalThis, name, { configurable: true, writable: true, value });
       }
-      assert.ok(inlineScripts.length > 0, 'The delivered page must have its pre-paint appearance bootstrap.');
+      assert.ok(
+        inlineScripts.length > 0,
+        'The delivered page must have its pre-paint appearance bootstrap.',
+      );
       for (const source of inlineScripts) {
-        runInNewContext(source, { document: page.document, window: page.window, localStorage: storage }, {
-          filename: 'toolbox-inline-bootstrap.js', timeout: 1000,
-        });
+        runInNewContext(
+          source,
+          { document: page.document, window: page.window, localStorage: storage },
+          {
+            filename: 'toolbox-inline-bootstrap.js',
+            timeout: 1000,
+          },
+        );
       }
       if (initialize) initializeAppearance();
       return page;
@@ -126,7 +146,11 @@ test('first visit defaults to light; toggles persist both choices across real bo
   const first = session.open(storage);
   assertAppearance(first, 'light');
   assert.equal(first.status.textContent, '');
-  assert.deepEqual(storage.calls, [['get', THEME_STORAGE_KEY]], 'A first visit does not write a preference.');
+  assert.deepEqual(
+    storage.calls,
+    [['get', THEME_STORAGE_KEY]],
+    'A first visit does not write a preference.',
+  );
 
   first.button.click();
   assertAppearance(first, 'dark');
@@ -148,7 +172,11 @@ test('saved dark appearance is applied by the delivered head script before contr
   const page = session.open(storage, false);
   assert.equal(page.document.documentElement.dataset.theme, 'dark');
   assert.equal(page.themeColor.content, '#101d2c');
-  assert.equal(page.button.hidden, true, 'The head script does not pretend that the controls are initialized.');
+  assert.equal(
+    page.button.hidden,
+    true,
+    'The head script does not pretend that the controls are initialized.',
+  );
   assert.equal(page.status.textContent, '');
   initializeAppearance();
   assertAppearance(page, 'dark');
@@ -169,7 +197,11 @@ test('cross-tab theme changes and preference removal synchronize without writing
   assertAppearance(page, 'dark');
   page.window.dispatchStorage(null, null);
   assertAppearance(page, 'light');
-  assert.deepEqual(storage.calls, callsAfterLoad, 'Receiving browser events does not read or rewrite storage.');
+  assert.deepEqual(
+    storage.calls,
+    callsAfterLoad,
+    'Receiving browser events does not read or rewrite storage.',
+  );
 });
 
 test('blocked browser storage keeps appearance usable and announces that changes last for this visit', (t) => {
@@ -185,27 +217,47 @@ test('blocked browser storage keeps appearance usable and announces that changes
   assert.equal(page.status.textContent, 'Light appearance. Saved for this visit only.');
   assert.equal(storage.values.get(LIBRARY_KEY), originalLibrary);
   assert.deepEqual(storage.calls, [
-    ['get', THEME_STORAGE_KEY], ['set', THEME_STORAGE_KEY, 'dark'], ['set', THEME_STORAGE_KEY, 'light'],
+    ['get', THEME_STORAGE_KEY],
+    ['set', THEME_STORAGE_KEY, 'dark'],
+    ['set', THEME_STORAGE_KEY, 'light'],
   ]);
 });
 
 const validLibrary = ` \n${JSON.stringify({
   version: 1,
-  groups: [{ id: 'existing', name: 'Existing personal context', context: 'Keep every character.\n' }],
+  groups: [
+    { id: 'existing', name: 'Existing personal context', context: 'Keep every character.\n' },
+  ],
   prompts: [],
   draft: {
-    groupId: 'existing', savedId: null, name: '', idea: '', prompt: '', includeContext: true,
-    modelId: 'gpt-6-luna', generatedModelId: null, task: 'plan', tone: 'clear', format: 'structured',
+    groupId: 'existing',
+    savedId: null,
+    name: '',
+    idea: '',
+    prompt: '',
+    includeContext: true,
+    modelId: 'gpt-6-luna',
+    generatedModelId: null,
+    task: 'plan',
+    tone: 'clear',
+    format: 'structured',
   },
 })}\n`;
 
 for (const fixture of [
   { name: 'valid library and malformed pins', library: validLibrary, pins: ' ["prompt", broken ' },
-  { name: 'malformed library and valid pins', library: ' { "draft": }\u0000 recover-me ', pins: ' [ "prompt", "family", "cameras" ] \n' },
+  {
+    name: 'malformed library and valid pins',
+    library: ' { "draft": }\u0000 recover-me ',
+    pins: ' [ "prompt", "family", "cameras" ] \n',
+  },
 ]) {
   test(`appearance never reads, overwrites, or removes archived data with ${fixture.name}`, (t) => {
     const session = createSession(t);
-    const entries = [[LIBRARY_KEY, fixture.library], [PINNED_KEY, fixture.pins]];
+    const entries = [
+      [LIBRARY_KEY, fixture.library],
+      [PINNED_KEY, fixture.pins],
+    ];
     const storage = createStorage(entries);
     const page = session.open(storage);
     page.button.click();
@@ -218,8 +270,17 @@ for (const fixture of [
       reloaded.window.dispatchStorage(listenerKey, storage.values.get(listenerKey));
     }
     assertAppearance(reloaded, 'dark');
-    assert.deepEqual([...storage.values].filter(([key]) => key !== THEME_STORAGE_KEY), entries);
-    assert.ok(storage.calls.every(([, key]) => key === THEME_STORAGE_KEY), 'Only the appearance preference may be accessed.');
-    assert.ok(storage.calls.every(([operation]) => operation === 'get' || operation === 'set'), 'No browser data may be removed or cleared.');
+    assert.deepEqual(
+      [...storage.values].filter(([key]) => key !== THEME_STORAGE_KEY),
+      entries,
+    );
+    assert.ok(
+      storage.calls.every(([, key]) => key === THEME_STORAGE_KEY),
+      'Only the appearance preference may be accessed.',
+    );
+    assert.ok(
+      storage.calls.every(([operation]) => operation === 'get' || operation === 'set'),
+      'No browser data may be removed or cleared.',
+    );
   });
 }

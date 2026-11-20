@@ -1,6 +1,14 @@
-html { background: #ffffff; color-scheme: light; }
-html[data-theme='dark'] { background: #101d2c; color-scheme: dark; }
-body { margin: 0; }
+html {
+  background: #ffffff;
+  color-scheme: light;
+}
+html[data-theme='dark'] {
+  background: #101d2c;
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+}
 
 /* Preference feedback stays readable independently of the optional tracker. */
 .studio-insights-preference {
@@ -13,9 +21,14 @@ body { margin: 0; }
   border-bottom: 1px solid light-dark(#c8d6ce, #40574a);
   background: light-dark(#eff8f3, #192d23);
   color: light-dark(#193d2d, #e6f5ed);
-  font: 400 14px/1.6 system-ui, sans-serif;
+  font:
+    400 14px/1.6 system-ui,
+    sans-serif;
 }
-.studio-insights-preference p { margin: 0; flex: 1 1 260px; }
+.studio-insights-preference p {
+  margin: 0;
+  flex: 1 1 260px;
+}
 .studio-insights-preference button {
   padding: 8px 16px;
   min-height: 44px;
@@ -25,4 +38,7 @@ body { margin: 0; }
   color: inherit;
   font: inherit;
 }
-.studio-insights-preference button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.studio-insights-preference button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}

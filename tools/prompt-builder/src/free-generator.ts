@@ -1,14 +1,19 @@
 import { parseGenerationRequest, type GenerationRequest } from '@toolbox/prompt-contracts';
 
 const TASK_LABELS: Record<GenerationRequest['task'], string> = {
-  build: 'building', debug: 'debugging', write: 'writing', research: 'research', plan: 'planning',
+  build: 'building',
+  debug: 'debugging',
+  write: 'writing',
+  research: 'research',
+  plan: 'planning',
 };
 const TONE_GUIDANCE: Record<GenerationRequest['tone'], string> = {
   clear: 'Use clear, plain language.',
   friendly: 'Use a warm, approachable tone.',
   direct: 'Be direct and get to the point.',
 };
-const SCOPE_GUIDANCE = 'Preserve the requested scope, order, and constraints. Use the task category and project context only as background; do not add work they suggest. If an essential detail is missing, ask a focused question. State any limits on what you can complete or verify.';
+const SCOPE_GUIDANCE =
+  'Preserve the requested scope, order, and constraints. Use the task category and project context only as background; do not add work they suggest. If an essential detail is missing, ask a focused question. State any limits on what you can complete or verify.';
 
 /** Assemble a ready-to-copy prompt locally without rewriting the idea or calling a provider. */
 export function buildFreePrompt(value: GenerationRequest): string {
