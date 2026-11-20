@@ -7,6 +7,8 @@ export function mountPromptBuilder(element: HTMLElement): () => void {
   const root = createRoot(element);
   root.render(<PromptBuilder />);
   /** Release React subscriptions when the shell navigates away from this tool. */
-  function unmountPromptBuilder(): void { root.unmount(); }
+  function unmountPromptBuilder(): void {
+    root.unmount();
+  }
   return unmountPromptBuilder;
 }

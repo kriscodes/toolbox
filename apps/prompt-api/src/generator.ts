@@ -1,4 +1,8 @@
-import { MAX_PROMPT_LENGTH, type GenerationRequest, type GenerationResponse } from '@toolbox/prompt-contracts';
+import {
+  MAX_PROMPT_LENGTH,
+  type GenerationRequest,
+  type GenerationResponse,
+} from '@toolbox/prompt-contracts';
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 export const MAX_OUTPUT_TOKENS = 1800;
@@ -56,28 +60,49 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 /** Extract only completed assistant text; reject refusals, empty, or truncated output. */
 export function extractPrompt(value: unknown): string {
   if (!isRecord(value) || value.status !== 'completed' || !Array.isArray(value.output)) {
-    throw new GenerationError('incomplete_output', 'The model did not finish a prompt. Try a shorter idea or another model.');
+    throw new GenerationError(
+      'incomplete_output',
+      'The model did not finish a prompt. Try a shorter idea or another model.',
+    );
   }
   const parts: string[] = [];
   for (const item of value.output) {
-    if (!isRecord(item) || item.type !== 'message' || item.role !== 'assistant' || !Array.isArray(item.content)) continue;
+    if (
+      !isRecord(item) ||
+      item.type !== 'message' ||
+      item.role !== 'assistant' ||
+      !Array.isArray(item.content)
+    )
+      continue;
     for (const content of item.content) {
       if (!isRecord(content)) continue;
       if (content.type === 'refusal') {
-        throw new GenerationError('refused', 'The model could not help with that request. Try rephrasing your idea.', 422);
+        throw new GenerationError(
+          'refused',
+          'The model could not help with that request. Try rephrasing your idea.',
+          422,
+        );
       }
-      if (content.type === 'output_text' && typeof content.text === 'string') parts.push(content.text);
+      if (content.type === 'output_text' && typeof content.text === 'string')
+        parts.push(content.text);
     }
   }
   const prompt = parts.join('\n').trim();
   if (!prompt || prompt.length > MAX_PROMPT_LENGTH) {
-    throw new GenerationError('invalid_output', 'The model returned an unusable prompt. Please try again.');
+    throw new GenerationError(
+      'invalid_output',
+      'The model returned an unusable prompt. Please try again.',
+    );
   }
   return prompt;
 }
 
 /** Make one bounded Responses API call; caller cancellation also stops upstream work. */
-export async function generatePrompt(request: GenerationRequest, options: GeneratorOptions, signal?: AbortSignal): Promise<GenerationResponse> {
+export async function generatePrompt(
+  request: GenerationRequest,
+  options: GeneratorOptions,
+  signal?: AbortSignal,
+): Promise<GenerationResponse> {
   const timeout = AbortSignal.timeout(options.timeoutMs ?? PROVIDER_TIMEOUT_MS);
   const combinedSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;
   try {
@@ -91,21 +116,48 @@ export async function generatePrompt(request: GenerationRequest, options: Genera
         reasoning: { effort: 'none' },
         max_output_tokens: MAX_OUTPUT_TOKENS,
         instructions: INSTRUCTIONS,
-        input: JSON.stringify({ idea: request.idea, context: request.context, task: request.task, tone: request.tone, format: request.format }),
+        input: JSON.stringify({
+          idea: request.idea,
+          context: request.context,
+          task: request.task,
+          tone: request.tone,
+          format: request.format,
+        }),
       }),
     });
     if (!response.ok) {
-      if (response.status === 429) throw new GenerationError('provider_busy', 'AI generation is temporarily unavailable or its usage allowance is exhausted. Try again later.', 503);
-      if (response.status === 401 || response.status === 403) throw new GenerationError('provider_configuration', 'AI generation needs attention in the server settings.', 503);
-      throw new GenerationError('provider_error', 'The model could not generate a prompt right now. Try again or choose another model.');
+      if (response.status === 429)
+        throw new GenerationError(
+          'provider_busy',
+          'AI generation is temporarily unavailable or its usage allowance is exhausted. Try again later.',
+          503,
+        );
+      if (response.status === 401 || response.status === 403)
+        throw new GenerationError(
+          'provider_configuration',
+          'AI generation needs attention in the server settings.',
+          503,
+        );
+      throw new GenerationError(
+        'provider_error',
+        'The model could not generate a prompt right now. Try again or choose another model.',
+      );
     }
     const value: unknown = await response.json();
     return { prompt: extractPrompt(value), modelId: request.modelId };
   } catch (error) {
     if (error instanceof GenerationError) throw error;
     if (combinedSignal.aborted) {
-      throw new GenerationError('generation_timeout', 'Generation was interrupted or took too long. Your draft is still here.', 504);
+      throw new GenerationError(
+        'generation_timeout',
+        'Generation was interrupted or took too long. Your draft is still here.',
+        504,
+      );
     }
-    throw new GenerationError('provider_unavailable', 'Could not reach the AI service. Please try again later.', 502);
+    throw new GenerationError(
+      'provider_unavailable',
+      'Could not reach the AI service. Please try again later.',
+      502,
+    );
   }
 }

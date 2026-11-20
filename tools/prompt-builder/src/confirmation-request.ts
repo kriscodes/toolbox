@@ -8,7 +8,10 @@ type ConfirmationRequest = {
 };
 
 /** Coordinate one confirmation at a time and reject consent when its underlying state changes. */
-export function createConfirmationRequest<T>({ getSnapshot, onChange }: {
+export function createConfirmationRequest<T>({
+  getSnapshot,
+  onChange,
+}: {
   getSnapshot: () => T;
   onChange: (options: ConfirmationOptions | null) => void;
 }): ConfirmationRequest {
@@ -36,7 +39,9 @@ export function createConfirmationRequest<T>({ getSnapshot, onChange }: {
   }
 
   /** Decline an outstanding action without changing the underlying library. */
-  function cancel(): void { resolve(false); }
+  function cancel(): void {
+    resolve(false);
+  }
 
   /** Release a waiting caller on unmount without notifying an already removed view. */
   function dispose(): void {

@@ -9,5 +9,7 @@
     "check": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
-  "dependencies": { "@toolbox/prompt-contracts": "1.0.0" }
+  "dependencies": {
+    "@toolbox/prompt-contracts": "1.0.0"
+  }
 }
