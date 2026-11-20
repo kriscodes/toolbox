@@ -45,7 +45,7 @@ The build emits all three public routes as HTML files, so a catch-all rewrite is
 
 ## Release workflow
 
-Use the same process as Portfolio and Lab: create a regular feature branch, review it through `staging`, then promote the tested changes to `main`. See [staging setup and promotion](STAGING.md); the new environment is prepared but not activated. GitHub Actions runs `npm run verify` on every pull request and push to `main` or `staging`, with a manual run option. This covers lint, tests, workspace type checks, a production build, and the public-build audit. Render waits for the deployed commit's checks with `autoDeployTrigger: checksPass`; failing checks or zero detected checks block automatic deployment. Do not add workflow path filters that skip CI on deployable commits.
+Use the same process as Portfolio and Lab: create a regular feature branch, review it through `staging`, then promote the tested changes to `main`. GitHub Actions runs `npm run verify` on every pull request and push to `main` or `staging`, with a manual run option. This covers lint, tests, workspace type checks, a production build, and the public-build audit. Render waits for the deployed commit's checks with `autoDeployTrigger: checksPass`; failing checks or zero detected checks block automatic deployment. Do not add workflow path filters that skip CI on deployable commits.
 
 Each service's build filter includes its application, shared packages, dependency lockfile, and runtime/TypeScript configuration. The static site also includes tool source and build scripts. Website-only changes do not deploy the API; API-only changes do not deploy the website. Documentation-only changes run CI without application deploys. Update the filters when introducing new build inputs.
 
@@ -62,3 +62,14 @@ Before deploying, run `npm run verify`. After deployment, open the homepage, ref
 When changing generation instructions, compare live output against requests with explicit coverage, order, exclusions, quantities, and noncoding tasks. The result should preserve those constraints and produce a reusable prompt without performing the task or adding work from background context. Mocked transport tests cannot establish output quality.
 
 For a frontend rollback, redeploy the previous known-good commit. Browser libraries remain tied to their origin and schema; export backups before any storage migration. Regenerate the sharing image with `npm run assets:brand` when its vector source or fonts change.
+
+## Environments
+
+| Service | Branch | Render URL |
+| --- | --- | --- |
+| toolbox-prompt-api-staging | `staging` | https://toolbox-prompt-api-staging.onrender.com |
+| kristian-toolbox-staging | `staging` | https://kristian-toolbox-staging.onrender.com |
+| toolbox-prompt-api | `main` | https://toolbox-prompt-api.onrender.com |
+| kristian-toolbox | `main` | https://kristian-toolbox.onrender.com |
+
+Production and staging use separate services. Keep staging credentials and data isolated. Run CI on each release candidate, verify the deployed source revision and health endpoints, and retain the previous working deployment for recovery. Documentation-only commits can be excluded by build filters; deploy the checked revision manually when a rebuild is required.
