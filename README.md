@@ -19,7 +19,7 @@ Open the URL printed by Vite. The free template builder formats an idea, optiona
 npm run verify
 ```
 
-This runs ESLint, tests, TypeScript checks, the production build, and an audit of the generated public files. CI runs the same checks on pull requests and pushes to `main`. Provider calls are mocked in tests; no API credentials are needed.
+This checks Prettier formatting, ESLint (including React hook usage and effect dependencies), tests, TypeScript, the production build, and the generated public files. CI runs the same checks on pull requests and pushes to `main` and `staging`. Run `npm run format` to apply formatting. Provider calls are mocked in tests; no API credentials are needed.
 
 ## Repository
 

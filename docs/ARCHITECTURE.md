@@ -10,6 +10,8 @@ The editor separates [library transformations and validation](../tools/prompt-bu
 
 The library has no server synchronization. Export a backup before clearing browser data or moving to another browser. The appearance preference uses a separate key, `toolbox.theme.v1`.
 
+`PromptBuilder` composes focused views for navigation, inputs, output, and dialogs. `usePromptLibrary` owns persistence, recovery, and snapshot-safe confirmations; `useLibraryActions` handles prompt and group changes; `useLibraryBackups` handles import, export, and recovery. `usePromptGeneration` owns private access and cancellable requests. Appearance and navigation protection have independent hooks. A response can replace output only while the same library snapshot remains active and storage is writable.
+
 ## Free template generation
 
 The default mode builds a prompt in the browser using [a local template builder](../tools/prompt-builder/src/free-generator.ts). It preserves the idea and included context, adds the selected tone and task category, and formats the result as structured text, concise text, or a checklist. This is template formatting, not an AI rewrite. It makes no network requests and requires no access key. Free output uses `generatedModelId: null`; the existing library schema and backups remain compatible.
@@ -34,4 +36,4 @@ The [privacy page](../apps/toolbox/privacy/index.html) describes collection and 
 
 ## Verification
 
-ESLint covers the repository. Tests cover library validation and recovery, confirmations, API authentication and failures, cancellation, and provider transport. The build audit checks published pages, metadata, asset references, and exclusion of server credentials and retired content. Browser checks remain necessary for keyboard interaction, responsive layout, and live analytics controls.
+Prettier and ESLint cover the repository, including React hook usage and effect dependencies. Tests cover library validation and recovery, confirmations, React lifecycle and asynchronous state changes, API authentication and failures, cancellation, and provider transport. The build audit checks published pages, metadata, asset references, and exclusion of server credentials and retired content. Browser checks remain necessary for keyboard interaction, responsive layout, and live analytics controls.
