@@ -39,5 +39,3 @@ The workspaces share one npm lockfile. The browser build writes to `dist/`; the 
 ## Assets
 
 Space Grotesk and DM Sans are self-hosted with their [font licenses](apps/toolbox/public/fonts/). Regenerate the sharing image from `artwork/brand/social-preview.svg` with `npm run assets:brand`. Retired designs and tools are available in Git history.
-
-Staging setup and promotion: [docs/STAGING.md](docs/STAGING.md) (prepared; activation pending review).
